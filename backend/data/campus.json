@@ -1,0 +1,26 @@
+{
+  "buildings": [
+    {
+      "id": "block_a",
+      "name": "Block A",
+      "floors": [
+        {
+          "id": 0,
+          "name": "Ground Floor"
+        },
+        {
+          "id": 1,
+          "name": "First Floor"
+        },
+        {
+          "id": 2,
+          "name": "Second Floor"
+        },
+        {
+          "id": 3,
+          "name": "Third Floor"
+        }
+      ]
+    }
+  ]
+}
