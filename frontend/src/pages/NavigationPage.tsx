@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getGraph, calculateRoute } from '../services/api';
+import { FloorPlanMap } from '../components/FloorPlanMap';
 import { Navigation, MapPin, Map, Image as ImageIcon, Search } from 'lucide-react';
 
 const photoMap: Record<string, string> = {
@@ -218,10 +219,30 @@ export const NavigationPage: React.FC = () => {
                         </div>
                     </div>
 
+                    {/* Visual 2D Map (Blue Lines restored) */}
+                    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                        <div className="bg-gray-50 px-5 py-3 border-b border-gray-200 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Map size={16} className="text-gray-600" />
+                                <h3 className="text-sm font-bold text-gray-900">Live 2D Routing Map</h3>
+                            </div>
+                            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Top-Down View</span>
+                        </div>
+                        <div className="p-4 flex justify-center bg-gray-100">
+                            {/* We re-add the original visualizer map here */}
+                            <FloorPlanMap 
+                                graph={{nodes}} 
+                                path={routeResult.path} 
+                                startNode={routeResult.path[0]} 
+                                endNode={routeResult.path[routeResult.path.length - 1]} 
+                            />
+                        </div>
+                    </div>
+
                     {/* Step-by-Step Directions */}
                     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                         <div className="bg-gray-50 px-5 py-3 border-b border-gray-200 flex items-center gap-2">
-                            <Map size={16} className="text-gray-600" />
+                            <MapPin size={16} className="text-gray-600" />
                             <h3 className="text-sm font-bold text-gray-900">Step-by-Step Directions</h3>
                         </div>
                         <div className="p-0">
