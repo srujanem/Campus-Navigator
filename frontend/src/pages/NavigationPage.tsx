@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FloorPlanMap }          from '../components/FloorPlanMap';
 import { NavigationHUD }         from '../components/NavigationHUD';
 import { MapStepCard }           from '../components/MapStepCard';

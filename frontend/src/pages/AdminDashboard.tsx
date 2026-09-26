@@ -1,135 +1,125 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Map, Library, TrendingUp, Users, BookOpen,
-    ArrowRight, CheckCircle, Clock, AlertTriangle,
-    Building2, BarChart2
+    Map, FileText, Building2, CheckCircle2,
+    ArrowRight, Activity, Layers, Sparkles,
+    Eye, ShieldCheck, Compass, Upload
 } from 'lucide-react';
-import { libraryBooks, borrowRecords } from '../data/libraryData';
-
-const StatCard: React.FC<{
-    label: string; value: string; sub: string; color: string; icon: React.ReactNode;
-}> = ({ label, value, sub, color, icon }) => (
-    <div className={`bg-white rounded-2xl p-5 border border-slate-100 shadow-sm`}>
-        <div className="flex items-start justify-between mb-3">
-            <p className="text-xs font-black text-slate-400 uppercase tracking-wider">{label}</p>
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}>
-                {icon}
-            </div>
-        </div>
-        <p className="text-3xl font-black text-slate-900 mb-1">{value}</p>
-        <p className="text-xs text-slate-500 font-medium">{sub}</p>
-    </div>
-);
+import { DigitalTwin3D } from '../components/DigitalTwin3D';
 
 export const AdminDashboard: React.FC = () => {
-    const totalBooks = libraryBooks.length;
-    const availableBooks = libraryBooks.filter(b => b.availableCopies > 0).length;
-    const overdueRecords = borrowRecords.filter(r => r.status === 'overdue').length;
-    const activeRecords = borrowRecords.filter(r => r.status === 'active').length;
-
     return (
-        <div className="h-full overflow-y-auto p-6 space-y-6">
+        <div className="h-full overflow-y-auto p-6 space-y-6 bg-slate-950 text-slate-100">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-5">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900">Admin Dashboard</h1>
-                    <p className="text-slate-500 text-sm mt-1">Campus 360 — Administrative Overview</p>
+                    <h1 className="text-2xl font-black text-white font-mono tracking-tight flex items-center gap-2">
+                        <Activity size={22} className="text-cyan-400" /> CAMPUS COMMAND CENTER
+                    </h1>
+                    <p className="text-xs text-slate-400 font-mono mt-1">
+                        Block A Main Academic Complex · Real-time spatial telemetry & blueprint index.
+                    </p>
                 </div>
-                <div className="text-right">
-                    <p className="text-xs text-slate-400 font-medium">Last synced</p>
-                    <p className="text-sm font-bold text-slate-700">Just now</p>
+                <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3.5 py-1.5 rounded-xl font-mono text-xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="text-emerald-400 font-bold">GRAPH ENGINE: ACTIVE</span>
                 </div>
             </div>
 
-            {/* Stats Grid */}
+            {/* Metrics Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard label="Rooms Mapped" value="40" sub="4 floors · Block A" color="bg-blue-100" icon={<Building2 size={18} className="text-blue-600" />} />
-                <StatCard label="Books in Library" value={String(totalBooks)} sub={`${availableBooks} titles available`} color="bg-emerald-100" icon={<BookOpen size={18} className="text-emerald-600" />} />
-                <StatCard label="Active Borrows" value={String(activeRecords)} sub="Currently issued" color="bg-amber-100" icon={<Clock size={18} className="text-amber-600" />} />
-                <StatCard label="Overdue Books" value={String(overdueRecords)} sub="Needs immediate attention" color="bg-red-100" icon={<AlertTriangle size={18} className="text-red-600" />} />
+                {[
+                    { label: 'FLOOR BLUEPRINTS', value: '4 / 4', sub: 'Ground to Floor 3', color: 'text-cyan-400', border: 'border-cyan-500/20' },
+                    { label: 'ROOMS & LABS', value: '40', sub: 'Indexed & Named', color: 'text-blue-400', border: 'border-blue-500/20' },
+                    { label: 'WALKABLE EDGES', value: '52', sub: 'Dual Path Enabled', color: 'text-purple-400', border: 'border-purple-500/20' },
+                    { label: 'VLM ACCURACY', value: '99.2%', sub: 'Visual Pose Conf.', color: 'text-emerald-400', border: 'border-emerald-500/20' },
+                ].map((stat, i) => (
+                    <div key={i} className={`bg-slate-900/70 border ${stat.border} p-4 rounded-xl shadow-lg`}>
+                        <p className="text-[10px] font-mono text-slate-400 font-bold uppercase">{stat.label}</p>
+                        <p className={`text-2xl font-black font-mono mt-1 ${stat.color}`}>{stat.value}</p>
+                        <p className="text-[10px] text-slate-500 font-mono mt-0.5">{stat.sub}</p>
+                    </div>
+                ))}
             </div>
 
-            {/* Two-column quick access */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* Campus Management */}
-                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                            <Map size={20} className="text-blue-600" />
-                        </div>
-                        <div>
-                            <h3 className="font-black text-slate-900">Campus Management</h3>
-                            <p className="text-xs text-slate-400">Floor plans, rooms, navigation graph</p>
-                        </div>
+            {/* Two Main Admin Action Modules */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Module 1: Blueprint & Vision Studio */}
+                <div className="bg-slate-900/80 border border-cyan-500/30 rounded-2xl p-6 relative overflow-hidden group hover:border-cyan-400 transition-all shadow-xl">
+                    <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
+                        <FileText size={24} />
                     </div>
-                    <div className="space-y-2 mb-4">
-                        {['Upload building photos', 'Configure rooms & labs', 'Set accessible routes', 'Manage timetable'].map(task => (
-                            <div key={task} className="flex items-center gap-2 text-sm text-slate-600">
-                                <CheckCircle size={14} className="text-blue-400 flex-shrink-0" />
-                                {task}
-                            </div>
-                        ))}
-                    </div>
-                    <Link to="/admin/campus" className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2.5 rounded-xl transition-colors w-full">
-                        Manage Campus <ArrowRight size={15} />
+                    <h3 className="text-lg font-black text-white font-mono mb-2">1. Blueprint & Vision Studio</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                        Upload architectural CAD drawings, floor plans, and corridor photos. The AI computer vision engine
+                        automatically detects walls, corridors, and door signs.
+                    </p>
+                    <ul className="text-xs text-slate-300 space-y-2 mb-6 font-mono">
+                        <li className="flex items-center gap-2">
+                            <CheckCircle2 size={13} className="text-cyan-400" /> AutoCAD / PDF Floorplan Scanner
+                        </li>
+                        <li className="flex items-center gap-2">
+                            <CheckCircle2 size={13} className="text-cyan-400" /> VLM Hallway Photo Extractor
+                        </li>
+                        <li className="flex items-center gap-2">
+                            <CheckCircle2 size={13} className="text-cyan-400" /> Automated Graph Synthesizer
+                        </li>
+                    </ul>
+                    <Link
+                        to="/admin/blueprint"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all"
+                    >
+                        Launch Blueprint Studio <ArrowRight size={14} />
                     </Link>
                 </div>
 
-                {/* Library Management */}
-                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                            <Library size={20} className="text-emerald-600" />
-                        </div>
-                        <div>
-                            <h3 className="font-black text-slate-900">Library Management</h3>
-                            <p className="text-xs text-slate-400">Books, circulation, shelf mapping</p>
-                        </div>
+                {/* Module 2: Campus Graph & Timetable Manager */}
+                <div className="bg-slate-900/80 border border-indigo-500/30 rounded-2xl p-6 relative overflow-hidden group hover:border-indigo-400 transition-all shadow-xl">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-4">
+                        <Map size={24} />
                     </div>
-                    <div className="space-y-2 mb-4">
-                        {['Add books via ISBN scan', 'Assign to rack & shelf', 'Issue & return books', 'Track overdue & fines'].map(task => (
-                            <div key={task} className="flex items-center gap-2 text-sm text-slate-600">
-                                <CheckCircle size={14} className="text-emerald-400 flex-shrink-0" />
-                                {task}
-                            </div>
-                        ))}
-                    </div>
-                    <Link to="/admin/library" className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-2.5 rounded-xl transition-colors w-full">
-                        Manage Library <ArrowRight size={15} />
+                    <h3 className="text-lg font-black text-white font-mono mb-2">2. Campus Graph & Node Manager</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                        Manage rooms, labs, stairs, and elevator connections across 4 floors. Upload class timetables
+                        for autonomous departure alerts.
+                    </p>
+                    <ul className="text-xs text-slate-300 space-y-2 mb-6 font-mono">
+                        <li className="flex items-center gap-2">
+                            <CheckCircle2 size={13} className="text-indigo-400" /> Interactive Node & Edge Coordinate Editor
+                        </li>
+                        <li className="flex items-center gap-2">
+                            <CheckCircle2 size={13} className="text-indigo-400" /> Wheelchair / Accessible Route Overrides
+                        </li>
+                        <li className="flex items-center gap-2">
+                            <CheckCircle2 size={13} className="text-indigo-400" /> Student Timetable CSV Parser
+                        </li>
+                    </ul>
+                    <Link
+                        to="/admin/campus"
+                        className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold px-5 py-2.5 rounded-xl text-xs transition-all"
+                    >
+                        Open Graph Setup <ArrowRight size={14} />
                     </Link>
                 </div>
             </div>
 
-            {/* Recent Borrow Activity */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 className="font-black text-slate-900">Recent Circulation Activity</h3>
-                    <Link to="/admin/library" className="text-xs text-blue-600 font-bold hover:underline">View All →</Link>
+            {/* Embedded 3D Digital Twin Visualizer */}
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 className="text-base font-black text-white font-mono flex items-center gap-2">
+                            <Layers size={18} className="text-cyan-400" /> Live 3D Building Digital Twin Telemetry
+                        </h3>
+                        <p className="text-xs text-slate-400 font-mono">
+                            Multi-floor topological connectivity status across all 4 building levels.
+                        </p>
+                    </div>
+                    <span className="text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800 px-2.5 py-1 rounded-full">
+                        ACTIVE VOLUMETRIC VIEW
+                    </span>
                 </div>
-                <div className="divide-y divide-slate-100">
-                    {borrowRecords.map(record => (
-                        <div key={record.id} className="px-5 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-[10px] font-black flex-shrink-0">
-                                    {record.studentName.split(' ').map(n => n[0]).join('')}
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold text-slate-900">{record.studentName} <span className="text-slate-400 font-medium text-xs">({record.rollNo})</span></p>
-                                    <p className="text-xs text-slate-500 truncate max-w-[200px]">{record.bookTitle}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3 flex-shrink-0">
-                                <p className="text-xs text-slate-400">Due: {record.dueDate}</p>
-                                <span className={`text-[10px] font-black px-2.5 py-1 rounded-full ${
-                                    record.status === 'active' ? 'bg-blue-100 text-blue-700' :
-                                    record.status === 'overdue' ? 'bg-red-100 text-red-700' :
-                                    'bg-slate-100 text-slate-500'}`}>
-                                    {record.status.toUpperCase()}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
+                <div className="h-[460px]">
+                    <DigitalTwin3D highlightFloor={1} interactive={true} />
                 </div>
             </div>
         </div>
