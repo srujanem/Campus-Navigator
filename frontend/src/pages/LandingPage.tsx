@@ -77,9 +77,9 @@ export const LandingPage: React.FC = () => {
             <section className="border-b border-gray-100 bg-gray-50">
                 <div className="max-w-4xl mx-auto px-6 py-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                     {[
-                        { value: '4 Floors', label: 'Fully Mapped' },
-                        { value: '40+ Rooms', label: 'Indexed & Named' },
-                        { value: '2 Paths', label: 'AI Route Comparison' },
+                        { value: '0 Floors', label: 'Mapped (Pending)' },
+                        { value: '0 Rooms', label: 'Indexed & Named' },
+                        { value: 'Ready', label: 'AI Route Comparison' },
                         { value: '4 Languages', label: 'Voice Search Support' },
                     ].map(s => (
                         <div key={s.label}>
