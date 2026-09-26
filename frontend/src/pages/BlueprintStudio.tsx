@@ -1,341 +1,292 @@
 import React, { useState } from 'react';
-import {
-    Upload, FileText, Camera, CheckCircle2, AlertCircle,
-    Cpu, Scan, Eye, Layers, ArrowRight, ShieldCheck, Sparkles,
-    RefreshCw, Zap, Play
-} from 'lucide-react';
+import { Upload, FileText, Camera, CheckCircle, Search, RefreshCw, Play } from 'lucide-react';
 
 export const BlueprintStudio: React.FC = () => {
-    const [selectedTab, setSelectedTab] = useState<'blueprint' | 'photos' | 'specs'>('blueprint');
+    const [tab, setTab] = useState<'blueprint' | 'photos' | 'guide'>('blueprint');
     const [isScanning, setIsScanning] = useState(false);
     const [scanProgress, setScanProgress] = useState(0);
     const [scanResults, setScanResults] = useState<{
-        roomsDetected: number;
-        corridorsTraced: number;
-        verticalConnectors: number;
-        graphNodesGenerated: number;
+        rooms: number; corridors: number; connectors: number; nodes: number;
     } | null>(null);
 
-    const handleSimulateScan = () => {
+    const runScan = () => {
         setIsScanning(true);
-        setScanProgress(10);
+        setScanProgress(0);
         setScanResults(null);
-
         const timer = setInterval(() => {
             setScanProgress(p => {
                 if (p >= 100) {
                     clearInterval(timer);
                     setIsScanning(false);
-                    setScanResults({
-                        roomsDetected: 12,
-                        corridorsTraced: 3,
-                        verticalConnectors: 3,
-                        graphNodesGenerated: 18
-                    });
+                    setScanResults({ rooms: 12, corridors: 3, connectors: 3, nodes: 18 });
                     return 100;
                 }
-                return p + 18;
+                return p + 20;
             });
         }, 250);
     };
 
-    return (
-        <div className="h-full overflow-y-auto p-6 space-y-6 bg-slate-950 text-slate-100">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-                <div>
-                    <div className="flex items-center gap-2">
-                        <span className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-                            <Scan size={18} />
-                        </span>
-                        <h1 className="text-2xl font-black text-white font-mono tracking-tight">
-                            BLUEPRINT & VISION STUDIO
-                        </h1>
-                    </div>
-                    <p className="text-xs text-slate-400 mt-1">
-                        Upload CAD construction schematics & corridor photos to autonomously synthesize spatial graphs.
-                    </p>
-                </div>
+    const TabButton: React.FC<{ id: typeof tab; label: string }> = ({ id, label }) => (
+        <button
+            onClick={() => setTab(id)}
+            className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors ${
+                tab === id
+                    ? 'border-blue-700 text-blue-700'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+        >
+            {label}
+        </button>
+    );
 
-                {/* Tabs */}
-                <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1.5 rounded-xl">
-                    <button
-                        onClick={() => setSelectedTab('blueprint')}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                            selectedTab === 'blueprint'
-                                ? 'bg-cyan-500 text-slate-950 font-black shadow-md'
-                                : 'text-slate-400 hover:text-white'
-                        }`}
-                    >
-                        <FileText size={14} /> 1. Construction Blueprint
-                    </button>
-                    <button
-                        onClick={() => setSelectedTab('photos')}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                            selectedTab === 'photos'
-                                ? 'bg-cyan-500 text-slate-950 font-black shadow-md'
-                                : 'text-slate-400 hover:text-white'
-                        }`}
-                    >
-                        <Camera size={14} /> 2. Corridor Photos (VLM)
-                    </button>
-                    <button
-                        onClick={() => setSelectedTab('specs')}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                            selectedTab === 'specs'
-                                ? 'bg-cyan-500 text-slate-950 font-black shadow-md'
-                                : 'text-slate-400 hover:text-white'
-                        }`}
-                    >
-                        <Cpu size={14} /> Blueprint Guide & Specs
-                    </button>
-                </div>
+    return (
+        <div className="h-full overflow-y-auto bg-white">
+            {/* Page Header */}
+            <div className="px-6 py-4 border-b border-gray-200 bg-white">
+                <h2 className="text-base font-bold text-gray-900">Blueprint & Vision Studio</h2>
+                <p className="text-xs text-gray-500 mt-0.5">
+                    Upload architectural floor plans and corridor photos to configure the campus navigation graph.
+                </p>
             </div>
 
-            {/* TAB 1: BLUEPRINT UPLOAD & SCANNER */}
-            {selectedTab === 'blueprint' && (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    {/* Left: Upload Dropzone */}
-                    <div className="lg:col-span-6 space-y-4">
-                        <div className="bg-slate-900/80 border-2 border-dashed border-cyan-500/30 rounded-2xl p-8 text-center hover:border-cyan-400 transition-all group relative overflow-hidden">
-                            <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mx-auto mb-4 group-hover:scale-110 transition-transform">
-                                <Upload size={28} />
-                            </div>
-                            <h3 className="font-black text-white text-base mb-1">Upload Campus Blueprint File</h3>
-                            <p className="text-xs text-slate-400 max-w-sm mx-auto mb-4">
-                                Supports AutoCAD export (DWG/DXF rasterized), architectural PDF floor plans, or high-res PNG/JPG schematics.
-                            </p>
-                            <div className="flex flex-wrap justify-center gap-2 mb-6">
-                                <span className="text-[10px] font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700">PNG / JPEG</span>
-                                <span className="text-[10px] font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700">Vector PDF</span>
-                                <span className="text-[10px] font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700">AutoCAD Raster</span>
-                            </div>
-                            <button
-                                onClick={handleSimulateScan}
-                                disabled={isScanning}
-                                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black px-6 py-2.5 rounded-xl text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center gap-2 mx-auto active:scale-95 disabled:opacity-50"
-                            >
-                                {isScanning ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
-                                {isScanning ? 'Neural Engine Scanning…' : 'Load Sample Blueprint & Run AI Extractor'}
-                            </button>
-                        </div>
+            {/* Tabs */}
+            <div className="flex border-b border-gray-200 px-6 bg-white">
+                <TabButton id="blueprint" label="1. Upload Blueprint" />
+                <TabButton id="photos" label="2. Corridor Photos (VLM)" />
+                <TabButton id="guide" label="What is a Blueprint?" />
+            </div>
 
-                        {/* Scanning Progress Bar */}
-                        {isScanning && (
-                            <div className="bg-slate-900 border border-cyan-500/40 rounded-xl p-4 space-y-2">
-                                <div className="flex justify-between text-xs font-mono">
-                                    <span className="text-cyan-400 flex items-center gap-1.5">
-                                        <Sparkles size={13} className="animate-pulse" /> Tracing Wall Geometries & Corridor Lines…
-                                    </span>
-                                    <span className="text-white font-bold">{scanProgress}%</span>
-                                </div>
-                                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
-                                        style={{ width: `${scanProgress}%` }}
-                                    />
-                                </div>
-                            </div>
-                        )}
+            <div className="p-6 space-y-5">
 
-                        {/* Extraction Results Card */}
-                        {scanResults && (
-                            <div className="bg-gradient-to-br from-cyan-950/40 via-slate-900 to-slate-900 border border-cyan-500/40 rounded-2xl p-5 space-y-3">
-                                <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold">
-                                    <CheckCircle2 size={16} /> Autonomous Graph Extraction Complete!
+                {/* ── TAB 1: BLUEPRINT UPLOAD ── */}
+                {tab === 'blueprint' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        {/* Left: Upload */}
+                        <div className="space-y-4">
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                                <div className="w-10 h-10 rounded bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700 mx-auto mb-3">
+                                    <Upload size={20} />
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                                    <div className="bg-slate-950/70 border border-slate-800 p-3 rounded-xl text-center">
-                                        <p className="text-xl font-black text-cyan-400 font-mono">{scanResults.roomsDetected}</p>
-                                        <p className="text-[10px] text-slate-400 uppercase font-semibold">Rooms Tagged</p>
-                                    </div>
-                                    <div className="bg-slate-950/70 border border-slate-800 p-3 rounded-xl text-center">
-                                        <p className="text-xl font-black text-blue-400 font-mono">{scanResults.corridorsTraced}</p>
-                                        <p className="text-[10px] text-slate-400 uppercase font-semibold">Corridor Spines</p>
-                                    </div>
-                                    <div className="bg-slate-950/70 border border-slate-800 p-3 rounded-xl text-center">
-                                        <p className="text-xl font-black text-purple-400 font-mono">{scanResults.verticalConnectors}</p>
-                                        <p className="text-[10px] text-slate-400 uppercase font-semibold">Stairs & Lifts</p>
-                                    </div>
-                                    <div className="bg-slate-950/70 border border-slate-800 p-3 rounded-xl text-center">
-                                        <p className="text-xl font-black text-emerald-400 font-mono">{scanResults.graphNodesGenerated}</p>
-                                        <p className="text-[10px] text-slate-400 uppercase font-semibold">A* Graph Nodes</p>
-                                    </div>
-                                </div>
-                                <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                                    Graph automatically integrated into navigation engine. Students can now immediately route to all 12 rooms on this floor!
+                                <p className="text-sm font-semibold text-gray-900 mb-1">Upload Floor Plan File</p>
+                                <p className="text-xs text-gray-500 mb-4">
+                                    Accepts high-resolution architectural drawings — CAD raster export, PDF floor plan, or PNG/JPEG scan.
                                 </p>
+                                <div className="flex flex-wrap justify-center gap-2 mb-5">
+                                    {['PNG / JPEG', 'Architectural PDF', 'AutoCAD Raster'].map(f => (
+                                        <span key={f} className="text-[10px] font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded border border-gray-200">{f}</span>
+                                    ))}
+                                </div>
+                                <button
+                                    onClick={runScan}
+                                    disabled={isScanning}
+                                    className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white text-xs font-semibold px-5 py-2.5 rounded mx-auto transition-colors"
+                                >
+                                    {isScanning ? <RefreshCw size={13} className="animate-spin" /> : <Play size={13} />}
+                                    {isScanning ? 'AI Scanning Blueprint…' : 'Load Sample & Run AI Extractor'}
+                                </button>
                             </div>
-                        )}
-                    </div>
 
-                    {/* Right: Interactive Scanner Visualizer */}
-                    <div className="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col">
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-mono text-cyan-400 font-bold flex items-center gap-1.5">
-                                <Eye size={14} /> LIVE AI SCANNER OVERLAY
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400">FLOOR 2 BLUEPRINT (BLOCK A)</span>
-                        </div>
-
-                        {/* Interactive Blueprint Canvas Simulation */}
-                        <div className="relative flex-1 min-h-[320px] bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex items-center justify-center p-4">
-                            {/* Blueprint grid */}
-                            <div className="absolute inset-0 opacity-15"
-                                style={{
-                                    backgroundImage: `linear-gradient(#38bdf8 1px, transparent 1px), linear-gradient(90deg, #38bdf8 1px, transparent 1px)`,
-                                    backgroundSize: '20px 20px'
-                                }}
-                            />
-
-                            {/* Architectural Blueprint Drawing */}
-                            <svg viewBox="0 0 500 280" className="w-full h-full">
-                                {/* Outer Wall Boundary */}
-                                <rect x="30" y="20" width="440" height="240" fill="none" stroke="#0ea5e9" strokeWidth="2.5" />
-                                
-                                {/* North Rooms */}
-                                <rect x="40" y="30" width="80" height="75" fill="#0284c7" fillOpacity="0.1" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="3 2" />
-                                <text x="80" y="70" fill="#93c5fd" fontSize="9" fontWeight="bold" textAnchor="middle">Room 201</text>
-
-                                <rect x="130" y="30" width="80" height="75" fill="#0284c7" fillOpacity="0.1" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="3 2" />
-                                <text x="170" y="70" fill="#93c5fd" fontSize="9" fontWeight="bold" textAnchor="middle">Room 202</text>
-
-                                <rect x="220" y="30" width="70" height="75" fill="#a855f7" fillOpacity="0.15" stroke="#c084fc" strokeWidth="1.2" />
-                                <text x="255" y="70" fill="#e9d5ff" fontSize="9" fontWeight="bold" textAnchor="middle">Lift Core</text>
-
-                                <rect x="300" y="30" width="80" height="75" fill="#0284c7" fillOpacity="0.1" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="3 2" />
-                                <text x="340" y="70" fill="#93c5fd" fontSize="9" fontWeight="bold" textAnchor="middle">Room 203</text>
-
-                                <rect x="390" y="30" width="70" height="75" fill="#0284c7" fillOpacity="0.1" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="3 2" />
-                                <text x="425" y="70" fill="#93c5fd" fontSize="9" fontWeight="bold" textAnchor="middle">Room 204</text>
-
-                                {/* Main Corridor Spine */}
-                                <rect x="40" y="115" width="420" height="40" fill="#06b6d4" fillOpacity="0.08" stroke="#06b6d4" strokeWidth="1.5" />
-                                <line x1="45" y1="135" x2="455" y2="135" stroke="#00f0ff" strokeWidth="2" strokeDasharray="6 4" />
-                                <text x="250" y="139" fill="#67e8f9" fontSize="8" fontWeight="bold" textAnchor="middle" letterSpacing="1">
-                                    MAIN CENTRAL CORRIDOR (AXIS X)
-                                </text>
-
-                                {/* South Rooms */}
-                                <rect x="40" y="165" width="90" height="85" fill="#10b981" fillOpacity="0.1" stroke="#34d399" strokeWidth="1.2" />
-                                <text x="85" y="210" fill="#6ee7b7" fontSize="9" fontWeight="bold" textAnchor="middle">Stairs A</text>
-
-                                <rect x="140" y="165" width="140" height="85" fill="#0284c7" fillOpacity="0.1" stroke="#38bdf8" strokeWidth="1.2" />
-                                <text x="210" y="210" fill="#93c5fd" fontSize="9" fontWeight="bold" textAnchor="middle">Advanced AI Lab</text>
-
-                                <rect x="290" y="165" width="80" height="85" fill="#f59e0b" fillOpacity="0.1" stroke="#fbbf24" strokeWidth="1.2" />
-                                <text x="330" y="210" fill="#fde68a" fontSize="9" fontWeight="bold" textAnchor="middle">Faculty Suite</text>
-
-                                <rect x="380" y="165" width="80" height="85" fill="#ef4444" fillOpacity="0.1" stroke="#f87171" strokeWidth="1.2" />
-                                <text x="420" y="210" fill="#fca5a5" fontSize="9" fontWeight="bold" textAnchor="middle">Washrooms</text>
-
-                                {/* Laser Scanner Sweep Line */}
-                                {isScanning && (
-                                    <line x1="30" y1="20" x2="30" y2="260" stroke="#00f0ff" strokeWidth="3" filter="drop-shadow(0 0 8px #00f0ff)">
-                                        <animate attributeName="x1" from="30" to="470" dur="2s" repeatCount="indefinite" />
-                                        <animate attributeName="x2" from="30" to="470" dur="2s" repeatCount="indefinite" />
-                                    </line>
-                                )}
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* TAB 2: CORRIDOR PHOTOS & VLM LOCALIZATION */}
-            {selectedTab === 'photos' && (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div className="lg:col-span-5 space-y-4">
-                        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                            <h3 className="font-black text-white text-base mb-2 flex items-center gap-2">
-                                <Camera size={18} className="text-cyan-400" /> Walk & Snap Photo Training
-                            </h3>
-                            <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                                Admins walk the hallways snapping photos of doors, signboards, and landmarks.
-                                The **Vision Language Model (Gemini Vision / Florence-2)** reads room numbers via OCR and computes visual feature embeddings.
-                            </p>
-                            <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2 mb-4">
-                                <p className="text-[11px] font-bold text-cyan-300 font-mono">RECOMMENDED PHOTO TYPES:</p>
-                                <ul className="text-xs text-slate-400 space-y-1.5 list-disc pl-4">
-                                    <li>Door nameplates (e.g. "Room 204 — Dr. Ramesh")</li>
-                                    <li>Hallway intersections & direction signs</li>
-                                    <li>Elevator entrances & staircase doorways</li>
-                                    <li>Emergency exits & safety equipment</li>
-                                </ul>
-                            </div>
-                            <button className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black py-3 rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-2">
-                                <Upload size={14} /> Batch Upload 20 Corridor Photos
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5">
-                        <h4 className="font-mono text-xs font-bold text-cyan-400 uppercase tracking-wider mb-4">
-                            Sample VLM Landmark Recognition Feed
-                        </h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {[
-                                { title: 'Doorway 204 Placard', tag: 'CLASSROOM', ocr: 'ROOM 204 - CS DEPT', conf: '99.4%' },
-                                { title: 'Lift Core F2 Sign', tag: 'ELEVATOR', ocr: 'LIFT B2 - FLOORS 0-4', conf: '98.8%' },
-                                { title: 'Robotics Lab Junction', tag: 'LABORATORY', ocr: 'AI & ROBOTICS LAB', conf: '97.6%' },
-                                { title: 'Stairwell A Entrance', tag: 'STAIRCASE', ocr: 'STAIRCASE A - FIRE EXIT', conf: '99.1%' },
-                            ].map((card, idx) => (
-                                <div key={idx} className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-[10px] font-mono font-black text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
-                                            {card.tag}
-                                        </span>
-                                        <span className="text-[10px] font-mono text-emerald-400 font-bold">{card.conf}</span>
+                            {/* Progress */}
+                            {isScanning && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div className="flex justify-between text-xs font-medium mb-2">
+                                        <span className="text-blue-700">Tracing corridor lines and room boundaries…</span>
+                                        <span className="text-blue-700 font-bold">{scanProgress}%</span>
                                     </div>
-                                    <p className="text-xs font-bold text-white">{card.title}</p>
-                                    <div className="bg-slate-900 border border-slate-800/80 px-2.5 py-1.5 rounded-lg text-[10px] font-mono text-slate-300">
-                                        OCR: "{card.ocr}"
+                                    <div className="w-full h-1.5 bg-blue-200 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-blue-700 transition-all duration-300"
+                                            style={{ width: `${scanProgress}%` }}
+                                        />
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
+                            )}
 
-            {/* TAB 3: SPECIFICATIONS & BLUEPRINT TERMINOLOGY GUIDE */}
-            {selectedTab === 'specs' && (
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-                    <div>
-                        <h3 className="text-lg font-black text-white font-mono mb-1">
-                            CAMPUS BLUEPRINT: DEFINITION & ENGINEERING SPECIFICATIONS
-                        </h3>
-                        <p className="text-xs text-slate-400">
-                            Understanding construction schematics, architectural CAD formats, and automated graph generation.
-                        </p>
-                    </div>
+                            {/* Results */}
+                            {scanResults && (
+                                <div className="border border-green-200 bg-green-50 rounded-lg p-4 space-y-3">
+                                    <p className="flex items-center gap-2 text-xs font-semibold text-green-700">
+                                        <CheckCircle size={14} /> Extraction Complete — Graph Ready
+                                    </p>
+                                    <div className="grid grid-cols-4 gap-2 text-center">
+                                        <div className="bg-white border border-gray-200 rounded p-2">
+                                            <p className="text-lg font-bold text-gray-900">{scanResults.rooms}</p>
+                                            <p className="text-[10px] text-gray-500">Rooms</p>
+                                        </div>
+                                        <div className="bg-white border border-gray-200 rounded p-2">
+                                            <p className="text-lg font-bold text-gray-900">{scanResults.corridors}</p>
+                                            <p className="text-[10px] text-gray-500">Corridors</p>
+                                        </div>
+                                        <div className="bg-white border border-gray-200 rounded p-2">
+                                            <p className="text-lg font-bold text-gray-900">{scanResults.connectors}</p>
+                                            <p className="text-[10px] text-gray-500">Stairs/Lift</p>
+                                        </div>
+                                        <div className="bg-white border border-gray-200 rounded p-2">
+                                            <p className="text-lg font-bold text-gray-900">{scanResults.nodes}</p>
+                                            <p className="text-[10px] text-gray-500">Graph Nodes</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-600">
+                                        Students can now navigate to all 12 detected rooms on this floor.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                            <h4 className="text-xs font-bold text-cyan-400 font-mono">1. What is a Campus Blueprint?</h4>
-                            <p className="text-xs text-slate-300 leading-relaxed">
-                                A **Campus Blueprint** is the 2D scaled architectural layout created during the construction of an academic facility.
-                                It specifies wall thicknesses, doors, structural pillars, room numbering, stairways, and corridors.
+                        {/* Right: Blueprint Diagram (clean SVG, no animations) */}
+                        <div className="border border-gray-200 rounded-lg p-4">
+                            <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wider">
+                                Sample Floor Plan — Floor 2, Block A
                             </p>
-                        </div>
-                        <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                            <h4 className="text-xs font-bold text-blue-400 font-mono">2. Supported Formats</h4>
-                            <p className="text-xs text-slate-300 leading-relaxed">
-                                • **CAD Vector:** DWG / DXF / SVG<br />
-                                • **Architectural PDF:** Multi-page floor plan books<br />
-                                • **High-Res Raster:** PNG / JPG scanned construction sheets (&gt;300 DPI)
-                            </p>
-                        </div>
-                        <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                            <h4 className="text-xs font-bold text-emerald-400 font-mono">3. How AI Converts It to Routes</h4>
-                            <p className="text-xs text-slate-300 leading-relaxed">
-                                Our computer vision pipeline performs **Corridor Skeletonization** (finding walkable centerlines),
-                                places **Graph Nodes** at doors & junctions, and links them with Euclidean distance **A* Edges**.
-                            </p>
+                            <div className="bg-gray-50 rounded border border-gray-100 p-2">
+                                <svg viewBox="0 0 500 280" className="w-full">
+                                    {/* Blueprint grid */}
+                                    <defs>
+                                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" strokeWidth="0.5" />
+                                        </pattern>
+                                    </defs>
+                                    <rect width="500" height="280" fill="url(#grid)" />
+
+                                    {/* Outer Boundary */}
+                                    <rect x="30" y="20" width="440" height="240" fill="none" stroke="#374151" strokeWidth="2" />
+
+                                    {/* North Rooms */}
+                                    {[
+                                        { x: 40, y: 30, w: 80, h: 70, label: 'Room 201', color: '#dbeafe' },
+                                        { x: 130, y: 30, w: 80, h: 70, label: 'Room 202', color: '#dbeafe' },
+                                        { x: 220, y: 30, w: 70, h: 70, label: 'Lift Core', color: '#ede9fe' },
+                                        { x: 300, y: 30, w: 80, h: 70, label: 'Room 203', color: '#dbeafe' },
+                                        { x: 390, y: 30, w: 70, h: 70, label: 'Room 204', color: '#dbeafe' },
+                                    ].map((r, i) => (
+                                        <g key={i}>
+                                            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.color} stroke="#9ca3af" strokeWidth="1" />
+                                            <text x={r.x + r.w / 2} y={r.y + r.h / 2 + 4} fill="#374151" fontSize="9" fontWeight="600" textAnchor="middle">{r.label}</text>
+                                        </g>
+                                    ))}
+
+                                    {/* Corridor */}
+                                    <rect x="30" y="110" width="440" height="40" fill="#f0fdf4" stroke="#86efac" strokeWidth="1" strokeDasharray="4 3" />
+                                    <text x="250" y="133" fill="#15803d" fontSize="8" fontWeight="600" textAnchor="middle" letterSpacing="1">MAIN CORRIDOR (WALKABLE AXIS)</text>
+
+                                    {/* South Rooms */}
+                                    {[
+                                        { x: 40, y: 160, w: 90, h: 90, label: 'Staircase A', color: '#fef3c7' },
+                                        { x: 140, y: 160, w: 140, h: 90, label: 'AI Lab', color: '#dbeafe' },
+                                        { x: 290, y: 160, w: 80, h: 90, label: 'Faculty Suite', color: '#dbeafe' },
+                                        { x: 380, y: 160, w: 80, h: 90, label: 'Washrooms', color: '#f3f4f6' },
+                                    ].map((r, i) => (
+                                        <g key={i}>
+                                            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.color} stroke="#9ca3af" strokeWidth="1" />
+                                            <text x={r.x + r.w / 2} y={r.y + r.h / 2 + 4} fill="#374151" fontSize="9" fontWeight="600" textAnchor="middle">{r.label}</text>
+                                        </g>
+                                    ))}
+
+                                    {/* Navigation Route */}
+                                    <path d="M 85,245 L 85,130 L 460,130 L 460,65 L 425,65" fill="none" stroke="#1d4ed8" strokeWidth="2.5" strokeDasharray="5 3" strokeLinecap="round" />
+                                    <circle cx="85" cy="245" r="5" fill="#16a34a" />
+                                    <circle cx="425" cy="65" r="5" fill="#dc2626" />
+                                    <text x="85" y="262" fill="#166534" fontSize="8" fontWeight="600" textAnchor="middle">Start</text>
+                                    <text x="425" y="53" fill="#991b1b" fontSize="8" fontWeight="600" textAnchor="middle">Room 204</text>
+                                </svg>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+
+                {/* ── TAB 2: CORRIDOR PHOTOS ── */}
+                {tab === 'photos' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div className="space-y-4">
+                            <div className="border border-gray-200 rounded-lg p-5 bg-white">
+                                <h3 className="text-sm font-bold text-gray-900 mb-2">Walk & Snap Photo Training</h3>
+                                <p className="text-xs text-gray-500 leading-relaxed mb-4">
+                                    The admin walks through each corridor snapping photos of door signs, room nameplates, and landmarks.
+                                    The Vision Language Model (VLM) reads the text on signs via OCR and associates each photo
+                                    with a map coordinate.
+                                </p>
+                                <div className="bg-gray-50 border border-gray-200 rounded p-3 space-y-2 mb-4">
+                                    <p className="text-[11px] font-semibold text-gray-700">Recommended Photo Types:</p>
+                                    <ul className="text-xs text-gray-600 space-y-1">
+                                        <li>• Door nameplates (e.g. "Room 204 — Computer Science")</li>
+                                        <li>• Hallway direction signboards</li>
+                                        <li>• Lift entrance and staircase doors</li>
+                                        <li>• Emergency exits and fire safety points</li>
+                                    </ul>
+                                </div>
+                                <button className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold px-4 py-2 rounded transition-colors">
+                                    <Upload size={13} /> Upload Corridor Photos (Batch)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                            <div className="px-4 py-3 border-b border-gray-100">
+                                <p className="text-xs font-semibold text-gray-700">VLM Recognition Results (Sample)</p>
+                            </div>
+                            <div className="divide-y divide-gray-100">
+                                {[
+                                    { photo: 'Doorway Placard', tag: 'CLASSROOM', ocr: 'ROOM 204 — CS DEPT', conf: '99.4%' },
+                                    { photo: 'Lift Core Signage', tag: 'ELEVATOR', ocr: 'LIFT B2 — FLOORS 0-4', conf: '98.8%' },
+                                    { photo: 'Lab Door', tag: 'LABORATORY', ocr: 'AI & ROBOTICS LAB', conf: '97.6%' },
+                                    { photo: 'Stairwell Entrance', tag: 'STAIRCASE', ocr: 'STAIRCASE A — FIRE EXIT', conf: '99.1%' },
+                                ].map((row, i) => (
+                                    <div key={i} className="px-4 py-3 flex items-center justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-semibold text-gray-900 truncate">{row.photo}</p>
+                                            <p className="text-[10px] text-gray-400 font-mono mt-0.5">OCR: "{row.ocr}"</p>
+                                        </div>
+                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                            <span className="text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded">{row.tag}</span>
+                                            <span className="text-[10px] font-semibold text-green-700">{row.conf}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ── TAB 3: WHAT IS A BLUEPRINT ── */}
+                {tab === 'guide' && (
+                    <div className="max-w-2xl space-y-4">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h3 className="text-sm font-bold text-gray-900 mb-2">What is a Campus Blueprint?</h3>
+                            <p className="text-xs text-gray-700 leading-relaxed">
+                                A <strong>Campus Blueprint</strong> is the 2D scaled architectural drawing created by civil engineers
+                                and architects during the planning and construction of a building. It shows the exact layout of
+                                every floor — including wall thickness, room placement, door positions, corridor widths, staircase
+                                shafts, elevator cores, and emergency exits.
+                            </p>
+                        </div>
+
+                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                            <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                                <p className="text-xs font-semibold text-gray-700">How Campus 360 Converts a Blueprint into Navigation</p>
+                            </div>
+                            <div className="divide-y divide-gray-100">
+                                {[
+                                    { step: '1', title: 'Corridor Skeletonization', desc: 'The AI finds the centerline of every walkable corridor on the floor plan.' },
+                                    { step: '2', title: 'Room & Door Detection', desc: 'Room numbers, door openings, and junctions are identified from the drawing.' },
+                                    { step: '3', title: 'Graph Node Placement', desc: 'A navigation node is placed at every room entrance, corridor intersection, staircase, and lift.' },
+                                    { step: '4', title: 'Edge Weight Calculation', desc: 'The distance between connected nodes is measured in metres from the blueprint scale.' },
+                                    { step: '5', title: 'A* Route Engine', desc: 'Students can instantly get the shortest path between any two points using the A* algorithm.' },
+                                ].map(s => (
+                                    <div key={s.step} className="px-4 py-3 flex items-start gap-3">
+                                        <span className="w-5 h-5 rounded-full bg-blue-700 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            {s.step}
+                                        </span>
+                                        <div>
+                                            <p className="text-xs font-semibold text-gray-900">{s.title}</p>
+                                            <p className="text-[11px] text-gray-500 mt-0.5">{s.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

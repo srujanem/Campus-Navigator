@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Map, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, FileText, Map } from 'lucide-react';
 import { AdminDashboard } from '../pages/AdminDashboard';
 import { BlueprintStudio } from '../pages/BlueprintStudio';
 import { AdminPage } from '../pages/AdminPage';
@@ -9,54 +9,42 @@ const AdminSidebar: React.FC = () => {
     const location = useLocation();
 
     const navItems = [
-        { path: '/admin', label: 'Admin Command Center', icon: <LayoutDashboard size={17} />, exact: true },
-        { path: '/admin/blueprint', label: 'Blueprint & Vision Studio', icon: <FileText size={17} />, exact: false },
-        { path: '/admin/campus', label: 'Campus Graph Manager', icon: <Map size={17} />, exact: false },
+        { path: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={15} />, exact: true },
+        { path: '/admin/blueprint', label: 'Blueprint & Vision Studio', icon: <FileText size={15} />, exact: false },
+        { path: '/admin/campus', label: 'Campus Graph Setup', icon: <Map size={15} />, exact: false },
     ];
 
     return (
-        <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col h-full flex-shrink-0 select-none">
-            {/* Header */}
-            <div className="px-5 pt-5 pb-3 border-b border-slate-900">
-                <div className="flex items-center gap-2">
-                    <span className="p-1 rounded bg-indigo-500/20 text-indigo-400">
-                        <ShieldCheck size={14} />
-                    </span>
-                    <p className="text-[10px] text-indigo-400 font-mono font-bold uppercase tracking-widest">Admin Studio</p>
-                </div>
-                <p className="text-sm font-black text-white font-mono mt-0.5">FACILITY MANAGEMENT</p>
+        <aside className="w-52 bg-gray-900 flex flex-col h-full flex-shrink-0">
+            <div className="px-4 py-4 border-b border-gray-800">
+                <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Admin Portal</p>
             </div>
-
-            {/* Nav */}
-            <nav className="flex-1 px-3 py-4 space-y-1.5">
+            <nav className="flex-1 p-2 space-y-0.5">
                 {navItems.map(item => {
                     const exactActive = item.exact && location.pathname === item.path;
                     const active = exactActive || (!item.exact && location.pathname.startsWith(item.path));
-
                     return (
                         <Link
                             key={item.path}
                             to={item.path}
-                            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-mono font-bold transition-all ${
+                            className={`flex items-center gap-2.5 px-3 py-2 rounded text-xs font-medium transition-colors ${
                                 active
-                                    ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 border border-indigo-500/40 shadow-lg'
-                                    : 'text-slate-400 hover:bg-slate-900 hover:text-white'
+                                    ? 'bg-gray-700 text-white font-semibold'
+                                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                             }`}
                         >
-                            <span className={active ? 'text-indigo-400' : 'text-slate-500'}>
-                                {item.icon}
-                            </span>
+                            {item.icon}
                             {item.label}
                         </Link>
                     );
                 })}
             </nav>
-
-            {/* Admin Badge */}
-            <div className="m-3 p-3.5 bg-slate-900/90 border border-slate-800 rounded-xl space-y-1">
-                <p className="text-[10px] font-mono text-slate-400">SESSION AUTHENTICATED</p>
-                <p className="text-xs font-bold text-white font-mono">Chief Campus Architect</p>
-                <p className="text-[9px] text-slate-500 font-mono">Role: Super Admin (Read/Write)</p>
+            <div className="p-3 border-t border-gray-800">
+                <div className="p-2.5">
+                    <p className="text-[10px] font-semibold text-gray-500">Administrator</p>
+                    <p className="text-xs font-bold text-white mt-0.5">Super Admin</p>
+                    <p className="text-[10px] text-gray-500">Full Access</p>
+                </div>
             </div>
         </aside>
     );
@@ -64,9 +52,9 @@ const AdminSidebar: React.FC = () => {
 
 export const AdminPortal: React.FC = () => {
     return (
-        <div className="flex h-full overflow-hidden bg-slate-950">
+        <div className="flex h-full overflow-hidden">
             <AdminSidebar />
-            <div className="flex-1 overflow-hidden relative">
+            <div className="flex-1 overflow-hidden bg-gray-50">
                 <Routes>
                     <Route path="/" element={<AdminDashboard />} />
                     <Route path="/blueprint" element={<BlueprintStudio />} />
