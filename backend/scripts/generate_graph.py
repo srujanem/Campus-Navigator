@@ -61,6 +61,8 @@ def generate_graph():
             {"id": "room_303",       "name": "Room 303",         "type": "classroom",         "x": 300, "y": 120},
             {"id": "room_304",       "name": "Room 304",         "type": "classroom",         "x": 380, "y": 120},
             {"id": "room_305",       "name": "Room 305",         "type": "classroom",         "x": 460, "y": 120},
+            {"id": "room_309",       "name": "Room 309 (Hostel)","type": "hostel_room",       "x": 540, "y": 120},
+            {"id": "room_310",       "name": "Room 310 (Hostel)","type": "hostel_room",       "x": 620, "y": 120},
             {"id": "washroom_3",     "name": "Washroom F3",      "type": "washroom",          "x": 460, "y": 280},
             {"id": "fe_3",           "name": "Fire Ext. F3",     "type": "fire_extinguisher", "x": 300, "y": 170},
         ],

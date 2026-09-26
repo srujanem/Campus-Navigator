@@ -424,6 +424,24 @@
       "floor": 3
     },
     {
+      "id": "room_309",
+      "name": "Room 309 (Hostel)",
+      "type": "hostel_room",
+      "x": 540,
+      "y": 120,
+      "building": "Block A",
+      "floor": 3
+    },
+    {
+      "id": "room_310",
+      "name": "Room 310 (Hostel)",
+      "type": "hostel_room",
+      "x": 620,
+      "y": 120,
+      "building": "Block A",
+      "floor": 3
+    },
+    {
       "id": "washroom_3",
       "name": "Washroom F3",
       "type": "washroom",
@@ -703,6 +721,18 @@
     },
     {
       "source": "room_305",
+      "target": "corridor_3_e",
+      "distance": 8,
+      "type": "door"
+    },
+    {
+      "source": "room_309",
+      "target": "corridor_3_e",
+      "distance": 8,
+      "type": "door"
+    },
+    {
+      "source": "room_310",
       "target": "corridor_3_e",
       "distance": 8,
       "type": "door"
