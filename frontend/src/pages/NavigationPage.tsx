@@ -168,14 +168,30 @@ export const NavigationPage: React.FC = () => {
             {/* Custom Type-to-Search Form */}
             <div className="w-full max-w-2xl bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <LocationSearchInput
-                        label="From Where?"
-                        icon={<MapPin size={16} />}
-                        value={startText}
-                        onChange={setStartText}
-                        nodes={nodes}
-                        placeholder="e.g. Main Gate"
-                    />
+                    <div className="relative">
+                        <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                                From Where?
+                            </label>
+                            <button 
+                                onClick={() => {
+                                    setStartText('Scanning...');
+                                    setTimeout(() => setStartText('Room 309'), 1500);
+                                }}
+                                className="text-[10px] bg-blue-50 text-blue-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors"
+                            >
+                                <ImageIcon size={10} /> Scan Door/QR
+                            </button>
+                        </div>
+                        <LocationSearchInput
+                            label="" // label moved above
+                            icon={<MapPin size={16} />}
+                            value={startText}
+                            onChange={setStartText}
+                            nodes={nodes}
+                            placeholder="e.g. Main Gate"
+                        />
+                    </div>
 
                     <LocationSearchInput
                         label="Destination"
