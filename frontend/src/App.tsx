@@ -1,39 +1,85 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { NavigationPage } from './pages/NavigationPage';
-import { VisionDemoPage } from './pages/VisionDemoPage';
-import { AdminPage } from './pages/AdminPage';
-import { Map, Camera, Settings } from 'lucide-react';
+import { StudentPortal } from './portals/StudentPortal';
+import { AdminPortal } from './portals/AdminPortal';
+import { LandingPage } from './pages/LandingPage';
+import {
+    GraduationCap, Settings2, Home, ChevronRight,
+    Building2, BookOpen, Map, Camera, LayoutDashboard
+} from 'lucide-react';
 
-const Sidebar = () => {
+const TopNav: React.FC = () => {
     const location = useLocation();
-    
+    const isLanding = location.pathname === '/';
+
     return (
-        <div className="w-16 bg-gray-900 flex flex-col items-center py-6 space-y-8 h-screen z-50">
-            <Link to="/" className={`p-3 rounded-xl transition-colors ${location.pathname === '/' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`} title="Navigation">
-                <Map size={24} />
+        <header className="h-16 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between px-6 z-50 flex-shrink-0">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-700 flex items-center justify-center shadow-md">
+                    <Building2 size={20} className="text-white" />
+                </div>
+                <div>
+                    <p className="text-base font-black text-slate-900 leading-tight tracking-tight">Campus 360</p>
+                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest leading-tight">Official Campus Platform</p>
+                </div>
             </Link>
-            <Link to="/vision" className={`p-3 rounded-xl transition-colors ${location.pathname === '/vision' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`} title="VLM Photo Demo">
-                <Camera size={24} />
-            </Link>
-            <div className="flex-1" />
-            <Link to="/admin" className={`p-3 rounded-xl transition-colors ${location.pathname === '/admin' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`} title="Admin Portal">
-                <Settings size={24} />
-            </Link>
-        </div>
+
+            {/* Portal Switcher */}
+            {!isLanding && (
+                <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+                    <Link to="/student"
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${location.pathname.startsWith('/student')
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-800 hover:bg-white'}`}>
+                        <GraduationCap size={15} /> Student Portal
+                    </Link>
+                    <Link to="/admin"
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${location.pathname.startsWith('/admin')
+                            ? 'bg-slate-800 text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-800 hover:bg-white'}`}>
+                        <Settings2 size={15} /> Admin Portal
+                    </Link>
+                </div>
+            )}
+
+            {/* Right Actions */}
+            <div className="flex items-center gap-3">
+                {isLanding ? (
+                    <>
+                        <Link to="/student" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md transition-all">
+                            <GraduationCap size={15} /> Student Login
+                        </Link>
+                        <Link to="/admin" className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md transition-all">
+                            <Settings2 size={15} /> Admin Login
+                        </Link>
+                    </>
+                ) : (
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-black">
+                            SR
+                        </div>
+                        <div className="hidden md:block">
+                            <p className="text-xs font-bold text-slate-800">Sruja N.</p>
+                            <p className="text-[10px] text-slate-400">Student · 21CS001</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </header>
     );
 };
 
 const App: React.FC = () => {
     return (
         <BrowserRouter>
-            <div className="flex h-screen overflow-hidden">
-                <Sidebar />
-                <div className="flex-1 overflow-hidden relative">
+            <div className="flex flex-col h-screen overflow-hidden bg-slate-50">
+                <TopNav />
+                <div className="flex-1 overflow-hidden">
                     <Routes>
-                        <Route path="/" element={<NavigationPage />} />
-                        <Route path="/vision" element={<VisionDemoPage />} />
-                        <Route path="/admin" element={<AdminPage />} />
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/student/*" element={<StudentPortal />} />
+                        <Route path="/admin/*" element={<AdminPortal />} />
                     </Routes>
                 </div>
             </div>
