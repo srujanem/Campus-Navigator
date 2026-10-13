@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo } from 'react';
 
 interface FloorPlanMapProps {
     graphData: any;
@@ -9,8 +9,10 @@ interface FloorPlanMapProps {
     startNode?: string;
     endNode?: string;
     mini?: boolean;
-    animatedStep?: number; // which path index the walking person is at
+    animatedStep?: number;
     onSelectAlternative?: () => void;
+    showCrowdDensity?: boolean;
+    crowdDensityData?: Record<string, string>;
 }
 
 const NODE_COLORS: Record<string, string> = {
@@ -23,13 +25,16 @@ const NODE_COLORS: Record<string, string> = {
     fire_extinguisher:'#fca5a5',
     corridor:         '#f1f5f9',
     room:             '#e2e8f0',
+    hostel_room:      '#bbf7d0',
 };
 
 export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
     graphData, currentFloor, path, alternativePath, currentNodeId,
-    startNode, endNode, mini = false, animatedStep, onSelectAlternative
+    startNode, endNode, mini = false, animatedStep, onSelectAlternative,
+    showCrowdDensity = false, crowdDensityData = {}
 }) => {
-    const vW = 640, vH = 320;
+    // Extended viewport so multi-building nodes (Central Library, Canteen, Hostel Sector) fit cleanly
+    const vW = 740, vH = 420;
 
     const floorNodes = useMemo(
         () => (graphData?.nodes || []).filter((n: any) => n.floor === currentFloor),
@@ -39,8 +44,8 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
     const floorEdges = useMemo(() => {
         const all = graphData?.edges || [];
         return all.filter((e: any) => {
-            const s = graphData.nodes.find((n: any) => n.id === e.source);
-            const t = graphData.nodes.find((n: any) => n.id === e.target);
+            const s = graphData.nodes?.find((n: any) => n.id === e.source);
+            const t = graphData.nodes?.find((n: any) => n.id === e.target);
             return s?.floor === currentFloor && t?.floor === currentFloor;
         });
     }, [graphData, currentFloor]);
@@ -78,40 +83,88 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
 
     if (!graphData) return (
         <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm">
-            Loading map…
+            Loading campus floor plan map…
         </div>
     );
 
     const inPath = (id: string) => path.includes(id);
     const isEdgeOnPath = (e: any) => path.includes(e.source) && path.includes(e.target);
-    const ROOM_W = mini ? 32 : 54;
-    const ROOM_H = mini ? 18 : 36;
+    const ROOM_W = mini ? 32 : 56;
+    const ROOM_H = mini ? 18 : 38;
 
     return (
         <div className={`w-full h-full rounded-xl overflow-hidden ${mini ? '' : 'bg-slate-50 border border-slate-200 shadow-inner'}`}>
-            <svg viewBox={`0 0 ${vW} ${vH}`} className="w-full h-full" style={{ fontFamily: 'system-ui, sans-serif' }}>
-                {/* Background */}
+            <svg viewBox={`0 0 ${vW} ${vH}`} className="w-full h-full" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                {/* Background base */}
                 <rect width={vW} height={vH} fill={mini ? '#f8fafc' : '#f1f5f9'} />
 
-                {/* Building floor slab */}
-                <rect x="24" y="16" width="592" height="288" rx="8"
+                {/* ── ARCHITECTURAL SLABS ── */}
+                {/* Main Academic Block floor slab */}
+                <rect x="24" y="16" width="670" height="260" rx="8"
                     fill="#e8edf2" stroke="#cbd5e1" strokeWidth={mini ? 1 : 2} />
 
-                {/* North rooms background */}
-                <rect x="30" y="22" width="580" height="133" rx="5" fill="#edf2f7" stroke="none" />
-                {/* South rooms background */}
-                <rect x="30" y="163" width="580" height="133" rx="5" fill="#edf2f7" stroke="none" />
+                {/* North & South room bays in Academic Block */}
+                <rect x="30" y="22" width="658" height="118" rx="5" fill="#edf2f7" stroke="none" />
+                <rect x="30" y="166" width="658" height="104" rx="5" fill="#edf2f7" stroke="none" />
 
-                {/* Corridor strip */}
-                <rect x="30" y="156" width="580" height="26" rx="0" fill="#dbeafe" />
+                {/* Main Corridor strip */}
+                <rect x="30" y="152" width="658" height="28" rx="0" fill="#dbeafe" />
                 {!mini && (
-                    <text x="314" y="172" textAnchor="middle" fontSize="8.5" fill="#6b8bb7"
-                        fontWeight="600" letterSpacing="1">
-                        MAIN CORRIDOR — {['GROUND', 'FIRST', 'SECOND', 'THIRD'][currentFloor]} FLOOR
+                    <text x="350" y="170" textAnchor="middle" fontSize="9" fill="#3b82f6"
+                        fontWeight="700" letterSpacing="1">
+                        CENTRAL CORRIDOR — {['GROUND', 'FIRST', 'SECOND', 'THIRD'][currentFloor]} FLOOR
                     </text>
                 )}
 
-                {/* ── NON-PATH EDGES (faint gray lines) ── */}
+                {/* Ground Floor Multi-Building Campus Wings */}
+                {currentFloor === 0 && (
+                    <>
+                        {/* Central Library Wing (Bottom Left) */}
+                        <g>
+                            <rect x="30" y="295" width="160" height="105" rx="8" fill="#e0e7ff" stroke="#818cf8" strokeWidth="1.5" />
+                            {!mini && (
+                                <text x="110" y="315" textAnchor="middle" fontSize="9" fill="#4338ca" fontWeight="800">
+                                    CENTRAL LIBRARY WING
+                                </text>
+                            )}
+                        </g>
+
+                        {/* Campus Canteen / Food Court Wing (Bottom Center-Right) */}
+                        <g>
+                            <rect x="420" y="295" width="180" height="105" rx="8" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
+                            {!mini && (
+                                <text x="510" y="315" textAnchor="middle" fontSize="9" fill="#92400e" fontWeight="800">
+                                    CAMPUS FOOD COURT & CANTEEN
+                                </text>
+                            )}
+                        </g>
+
+                        {/* Hostel Ground Wing (Bottom Far-Right) */}
+                        <g>
+                            <rect x="610" y="210" width="115" height="190" rx="8" fill="#dcfce7" stroke="#22c55e" strokeWidth="1.5" />
+                            {!mini && (
+                                <text x="668" y="230" textAnchor="middle" fontSize="8" fill="#15803d" fontWeight="800">
+                                    HOSTEL MESS
+                                </text>
+                            )}
+                        </g>
+                    </>
+                )}
+
+                {/* ── CROWD DENSITY HEATMAP LAYER ── */}
+                {showCrowdDensity && floorNodes.map((n: any) => {
+                    const density = crowdDensityData[n.id];
+                    if (!density) return null;
+                    const color = density === 'high' ? '#ef4444' : density === 'medium' ? '#f59e0b' : '#10b981';
+                    return (
+                        <circle key={`density-${n.id}`} cx={n.x} cy={n.y} r={35} fill={color} opacity="0.3">
+                            <animate attributeName="r" values="30;42;30" dur="2s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" values="0.35;0.15;0.35" dur="2s" repeatCount="indefinite" />
+                        </circle>
+                    );
+                })}
+
+                {/* ── NON-PATH EDGES (Walkway lines) ── */}
                 {floorEdges.map((edge: any, i: number) => {
                     if (isEdgeOnPath(edge)) return null;
                     const s = floorNodes.find((n: any) => n.id === edge.source);
@@ -120,20 +173,18 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
                     return (
                         <line key={`ne-${i}`}
                             x1={s.x} y1={s.y} x2={t.x} y2={t.y}
-                            stroke="#c8d5e0" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"
+                            stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" strokeDasharray="3,3" opacity="0.75"
                         />
                     );
                 })}
 
-                {/* ── ALTERNATIVE PATH — elegant dashed amber line ── */}
+                {/* ── ALTERNATIVE PATH (Dashed amber) ── */}
                 {altPathSegments.map((seg, i) => (
                     <g key={`alt-seg-${i}`} className={onSelectAlternative ? "cursor-pointer" : undefined} onClick={onSelectAlternative}>
-                        {/* Underline glow */}
                         <line x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2}
                             stroke="#f59e0b" strokeWidth={mini ? 4 : 8}
                             strokeLinecap="round" opacity="0.25"
                         />
-                        {/* Dashed line */}
                         <line x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2}
                             stroke="#d97706" strokeWidth={mini ? 2.5 : 4}
                             strokeLinecap="round" strokeDasharray={mini ? "4,4" : "7,7"}
@@ -147,44 +198,39 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
                     </g>
                 ))}
 
-                {/* ── ACTIVE PATH — glowing animated lines ── */}
+                {/* ── ACTIVE PATH (Glow + Blue route) ── */}
                 {pathSegments.map((seg, i) => (
                     <g key={`path-seg-${i}`}>
-                        {/* Glow layer */}
                         <line x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2}
-                            stroke="#93c5fd" strokeWidth={mini ? 6 : 12}
-                            strokeLinecap="round" opacity="0.3">
-                            <animate attributeName="opacity" values="0.3;0.5;0.3" dur="2s" repeatCount="indefinite" />
+                            stroke="#93c5fd" strokeWidth={mini ? 6 : 14}
+                            strokeLinecap="round" opacity="0.4">
+                            <animate attributeName="opacity" values="0.3;0.6;0.3" dur="2s" repeatCount="indefinite" />
                         </line>
-                        {/* Main path */}
                         <line x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2}
-                            stroke="#2563eb" strokeWidth={mini ? 3 : 5}
+                            stroke="#2563eb" strokeWidth={mini ? 3 : 5.5}
                             strokeLinecap="round"
-                            strokeDasharray={mini ? undefined : '0'}
                         />
-                        {/* Flowing animation dashes */}
                         {!mini && (
                             <line x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2}
                                 stroke="white" strokeWidth="2" strokeLinecap="round"
-                                strokeDasharray="6,18" opacity="0.7">
+                                strokeDasharray="6,18" opacity="0.8">
                                 <animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.8s" repeatCount="indefinite" />
                             </line>
                         )}
-                        {/* Directional arrowhead at midpoint */}
                         {!mini && (() => {
                             const mx = (seg.x1 + seg.x2) / 2;
                             const my = (seg.y1 + seg.y2) / 2;
                             const angle = Math.atan2(seg.y2 - seg.y1, seg.x2 - seg.x1) * 180 / Math.PI;
                             return (
                                 <g transform={`translate(${mx},${my}) rotate(${angle})`}>
-                                    <polygon points="-5,-4 5,0 -5,4" fill="white" opacity="0.9" />
+                                    <polygon points="-5,-4 5,0 -5,4" fill="white" opacity="0.95" />
                                 </g>
                             );
                         })()}
                     </g>
                 ))}
 
-                {/* ── NODES (architectural shapes) ── */}
+                {/* ── NODES RENDERING ── */}
                 {floorNodes.map((node: any) => {
                     const nx = node.x, ny = node.y;
                     const isStart  = node.id === startNode;
@@ -196,7 +242,7 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
 
                     if (node.type === 'corridor') return null;
 
-                    // ── Stairs ──
+                    // Stairs
                     if (node.type === 'stairs') {
                         const hw = mini ? 9 : 14;
                         return (
@@ -210,7 +256,7 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
                                         stroke={strokeC} strokeWidth="1" opacity="0.45" />
                                 ))}
                                 {!mini && (
-                                    <text x={nx} y={ny + hw + 13} textAnchor="middle" fontSize="8" fill="#475569" fontWeight="600">
+                                    <text x={nx} y={ny + hw + 12} textAnchor="middle" fontSize="8" fill="#475569" fontWeight="600">
                                         {node.name.replace(' (F' + currentFloor + ')', '')}
                                     </text>
                                 )}
@@ -218,7 +264,7 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
                         );
                     }
 
-                    // ── Lift ──
+                    // Lift
                     if (node.type === 'lift') {
                         const hw = mini ? 8 : 13;
                         return (
@@ -228,26 +274,26 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
                                 {!mini && (
                                     <>
                                         <text x={nx} y={ny + 4} textAnchor="middle" fontSize="10" fontWeight="900" fill="#92400e">↑↓</text>
-                                        <text x={nx} y={ny + hw + 13} textAnchor="middle" fontSize="8" fill="#475569">Lift</text>
+                                        <text x={nx} y={ny + hw + 12} textAnchor="middle" fontSize="8" fill="#475569">Lift</text>
                                     </>
                                 )}
                             </g>
                         );
                     }
 
-                    // ── Fire Extinguisher ──
+                    // Fire Extinguisher
                     if (node.type === 'fire_extinguisher') {
                         return (
                             <g key={node.id}>
                                 <circle cx={nx} cy={ny} r={mini ? 4 : 6} fill="#ef4444" stroke="#991b1b" strokeWidth="1.5" />
-                                {!mini && <text x={nx} y={ny + 4} textAnchor="middle" fontSize="7" fill="white" fontWeight="bold">F</text>}
+                                {!mini && <text x={nx} y={ny + 3} textAnchor="middle" fontSize="7" fill="white" fontWeight="bold">F</text>}
                             </g>
                         );
                     }
 
-                    // ── Rooms, Labs, Entrances, Washrooms ──
+                    // Rooms, Labs, Dining, Library, Entrances
                     const rw = ROOM_W, rh = ROOM_H;
-                    const isNorth = ny < 156;
+                    const isNorth = ny < 152;
                     const ry = ny - rh / 2;
                     const shortName = node.name
                         .replace('Room ', '')
@@ -255,16 +301,18 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
                         .replace('Washroom F1', 'WC')
                         .replace('Washroom F2', 'WC')
                         .replace('Washroom F3', 'WC')
-                        .replace(' GF', '').replace(' F1', '').replace(' F2', '').replace(' F3', '');
+                        .replace('Central Library', 'Library')
+                        .replace('Campus Canteen', 'Canteen')
+                        .replace('Hostel Dining Mess', 'Mess')
+                        .replace('Warden Office', 'Warden')
+                        .replace(' (Hostel)', '');
 
                     return (
                         <g key={node.id}>
-                            {/* Room rectangle */}
-                            <rect x={nx - rw / 2} y={ry} width={rw} height={rh} rx="4"
+                            <rect x={nx - rw / 2} y={ry} width={rw} height={rh} rx="5"
                                 fill={fill} stroke={strokeC} strokeWidth={sw}
-                                opacity={onPath || isStart || isEnd ? 1 : 0.88}
+                                opacity={onPath || isStart || isEnd ? 1 : 0.9}
                             />
-                            {/* Door indicator */}
                             {!mini && (
                                 <line
                                     x1={nx - 5} y1={isNorth ? ry + rh : ry}
@@ -272,19 +320,16 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
                                     stroke="#2563eb" strokeWidth="2.5"
                                 />
                             )}
-                            {/* Label */}
                             {!mini && (
                                 <text x={nx} y={ry + rh / 2 + 4} textAnchor="middle"
-                                    fontSize={shortName.length > 5 ? '8' : '9.5'}
+                                    fontSize={shortName.length > 7 ? '8' : '9.5'}
                                     fontWeight="700" fill="#1e293b">
                                     {shortName}
                                 </text>
                             )}
-                            {/* Type label */}
                             {!mini && node.type === 'lab' && (
-                                <text x={nx} y={ry + rh - 4} textAnchor="middle" fontSize="7" fill="#7c3aed">LAB</text>
+                                <text x={nx} y={ry + rh - 4} textAnchor="middle" fontSize="7" fill="#7c3aed" fontWeight="bold">AI LAB</text>
                             )}
-                            {/* Start / Dest badge */}
                             {(isStart || isEnd) && !mini && (
                                 <g>
                                     <circle cx={nx} cy={ry - 8} r="8" fill={isStart ? '#22c55e' : '#ef4444'} />
@@ -297,17 +342,13 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
                     );
                 })}
 
-                {/* ── WALKING PERSON ICON (animated) ── */}
+                {/* ── WALKING PERSON (Animated Marker) ── */}
                 {personPos && !mini && (
                     <g transform={`translate(${personPos.x}, ${personPos.y - 20})`}>
-                        {/* Shadow */}
                         <ellipse cx="0" cy="18" rx="8" ry="3" fill="black" opacity="0.15" />
-                        {/* Body */}
                         <circle cx="0" cy="0" r="9" fill="#2563eb" stroke="white" strokeWidth="2" />
-                        {/* Person emoji-style */}
                         <circle cx="0" cy="-3" r="3.5" fill="white" />
                         <path d="M -4 4 Q 0 8 4 4" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                        {/* Pulse ring */}
                         <circle cx="0" cy="0" r="9" fill="none" stroke="#2563eb" strokeWidth="2" opacity="0.4">
                             <animate attributeName="r" values="9;18;9" dur="1.5s" repeatCount="indefinite" />
                             <animate attributeName="opacity" values="0.5;0;0.5" dur="1.5s" repeatCount="indefinite" />
@@ -346,20 +387,20 @@ export const FloorPlanMap: React.FC<FloorPlanMapProps> = ({
                     );
                 })()}
 
-                {/* Floor label badge */}
+                {/* Floor Level Badge */}
                 {!mini && (
                     <g>
-                        <rect x="24" y="16" width="82" height="20" rx="4" fill="#1e293b" opacity="0.75" />
-                        <text x="65" y="30" textAnchor="middle" fontSize="9" fill="white" fontWeight="700">
-                            {['GROUND', 'FLOOR 1', 'FLOOR 2', 'FLOOR 3'][currentFloor]}
+                        <rect x="24" y="16" width="95" height="22" rx="5" fill="#1e293b" opacity="0.85" />
+                        <text x="71" y="31" textAnchor="middle" fontSize="9.5" fill="white" fontWeight="700">
+                            {['GROUND LEVEL', 'FLOOR 1', 'FLOOR 2', 'FLOOR 3'][currentFloor]}
                         </text>
                     </g>
                 )}
 
-                {/* Entrance arrow */}
+                {/* Entrance Marker */}
                 {currentFloor === 0 && !mini && (
                     <g>
-                        <text x="314" y="312" textAnchor="middle" fontSize="9" fill="#94a3b8">▲ ENTRANCE</text>
+                        <text x="300" y="315" textAnchor="middle" fontSize="9" fill="#15803d" fontWeight="700">▲ MAIN GATE ENTRANCE</text>
                     </g>
                 )}
             </svg>

@@ -3,70 +3,81 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import { StudentPortal } from './portals/StudentPortal';
 import { AdminPortal } from './portals/AdminPortal';
 import { LandingPage } from './pages/LandingPage';
-import { GraduationCap, Settings, Building } from 'lucide-react';
+import { GraduationCap, Settings, Building2, ShieldCheck, Compass, Flame } from 'lucide-react';
 
 const TopNav: React.FC = () => {
     const location = useLocation();
     const isLanding = location.pathname === '/';
+    const isStudent = location.pathname.startsWith('/student');
+    const isAdmin = location.pathname.startsWith('/admin');
 
     return (
-        <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0 z-50">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded bg-blue-700 flex items-center justify-center">
-                    <Building size={16} className="text-white" />
-                </div>
-                <div>
-                    <p className="text-sm font-bold text-gray-900 leading-none">Campus 360</p>
-                    <p className="text-[10px] text-gray-400 leading-none mt-0.5">Indoor Navigation System</p>
-                </div>
-            </Link>
-
-            {/* Center: Portal Switcher (only when inside a portal) */}
-            {!isLanding && (
-                <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
-                    <Link
-                        to="/student"
-                        className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold transition-colors ${
-                            location.pathname.startsWith('/student')
-                                ? 'bg-blue-700 text-white'
-                                : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                    >
-                        <GraduationCap size={14} /> Student Portal
-                    </Link>
-                    <Link
-                        to="/admin"
-                        className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold border-l border-gray-200 transition-colors ${
-                            location.pathname.startsWith('/admin')
-                                ? 'bg-gray-800 text-white'
-                                : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                    >
-                        <Settings size={14} /> Admin Portal
-                    </Link>
-                </div>
-            )}
-
-            {/* Right */}
-            <div className="flex items-center gap-2">
-                {isLanding ? (
-                    <>
-                        <Link to="/student" className="text-xs font-semibold text-blue-700 border border-blue-700 px-3 py-1.5 rounded hover:bg-blue-50 transition-colors">
-                            Student Login
-                        </Link>
-                        <Link to="/admin" className="text-xs font-semibold bg-gray-800 text-white px-3 py-1.5 rounded hover:bg-gray-700 transition-colors">
-                            Admin Login
-                        </Link>
-                    </>
-                ) : (
-                    <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-blue-700 flex items-center justify-center text-white text-[10px] font-bold">
-                            SR
-                        </div>
-                        <p className="text-xs text-gray-600 hidden sm:block">Sruja N.</p>
+        <header className="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 z-50 text-white shadow-md">
+            {/* Left: Brand Identity */}
+            <div className="flex items-center gap-3">
+                <Link to="/" className="flex items-center gap-3 group">
+                    <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm ring-1 ring-blue-400/30 group-hover:bg-blue-500 transition-colors">
+                        <Building2 size={20} />
                     </div>
-                )}
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-base font-bold tracking-tight text-white group-hover:text-blue-200 transition-colors">
+                                CAMPUS 360
+                            </span>
+                            <span className="hidden md:inline-flex items-center gap-1 text-[10px] uppercase font-semibold bg-blue-950 text-blue-300 border border-blue-800/80 px-2 py-0.5 rounded-full">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                Multi-Building Live
+                            </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 font-normal leading-tight hidden sm:block">
+                            Official Institutional Indoor Navigation & Spatial Twin
+                        </p>
+                    </div>
+                </Link>
+            </div>
+
+            {/* Center: Segmented Portal Switcher */}
+            <div className="flex items-center bg-slate-800/90 p-1 rounded-lg border border-slate-700/80 shadow-inner">
+                <Link
+                    to="/student"
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                        isStudent
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                >
+                    <GraduationCap size={15} />
+                    <span>Student Portal</span>
+                </Link>
+                <Link
+                    to="/admin"
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                        isAdmin
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                >
+                    <Settings size={15} />
+                    <span>Admin Operations</span>
+                </Link>
+            </div>
+
+            {/* Right: User / Campus Status */}
+            <div className="flex items-center gap-3">
+                <div className="hidden lg:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300">
+                    <ShieldCheck size={14} className="text-emerald-400" />
+                    <span>4 Buildings · 55 Nodes Active</span>
+                </div>
+
+                <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white text-xs font-bold ring-2 ring-slate-800">
+                        SN
+                    </div>
+                    <div className="hidden sm:block text-left">
+                        <p className="text-xs font-semibold text-slate-200 leading-tight">Sruja N.</p>
+                        <p className="text-[10px] text-slate-400 leading-tight">21CS001 · CSE</p>
+                    </div>
+                </div>
             </div>
         </header>
     );
@@ -75,7 +86,7 @@ const TopNav: React.FC = () => {
 const App: React.FC = () => {
     return (
         <BrowserRouter>
-            <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
+            <div className="flex flex-col h-screen overflow-hidden bg-slate-50 font-sans text-slate-900">
                 <TopNav />
                 <div className="flex-1 overflow-hidden">
                     <Routes>

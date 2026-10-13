@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { getGraph, calculateRoute, getTimetable, getMaintenance, calculateMidpoint, agentQuery } from '../services/api';
+import { getGraph, calculateRoute, getTimetable, getMaintenance, calculateMidpoint, agentQuery, getAnalytics } from '../services/api';
 import { FloorPlanMap } from '../components/FloorPlanMap';
 import { LiveCameraScanner } from '../components/LiveCameraScanner';
 import {
@@ -27,7 +27,11 @@ import {
     Sun,
     Globe,
     Check,
-    Copy
+    ArrowUpDown,
+    Building2,
+    Activity,
+    Layers,
+    Compass
 } from 'lucide-react';
 
 const photoMap: Record<string, string> = {
@@ -41,7 +45,7 @@ type LangKey = 'en' | 'hi' | 'te' | 'ta';
 const translations: Record<LangKey, Record<string, string>> = {
     en: {
         title: "Campus 360 Route Navigation",
-        subtitle: "Zero-hardware indoor mapping. Point camera at door sign or QR tag to localize.",
+        subtitle: "Zero-hardware indoor positioning across 4 campus buildings. Turn-by-turn guidance and AI vision.",
         fromWhere: "From Where?",
         destination: "Destination",
         getDirections: "Get Directions",
@@ -54,22 +58,23 @@ const translations: Record<LangKey, Record<string, string>> = {
         elevator: "Elevator",
         fireExt: "Fire Ext.",
         labs: "Labs",
-        voiceNav: "Voice Turn-by-Turn",
+        voiceNav: "Voice Guidance",
         stopVoice: "Stop Voice Guidance",
         shareRoute: "Share Route",
-        sosEvacuate: "🚨 SOS Evacuate",
-        singleRoute: "Single Route",
-        meetFriend: "Meet a Friend",
+        sosEvacuate: "🚨 Emergency Evacuation",
+        singleRoute: "Point-to-Point Route",
+        meetFriend: "Meet-a-Friend Midpoint",
         upcomingClass: "Upcoming Class",
         navClass: "Navigate to Class",
-        scanDoor: "Live Camera / QR Scan",
+        scanDoor: "Camera / QR Scan",
         friend1: "Your Location",
         friend2: "Friend's Location",
-        findMidpoint: "Find Fair Meeting Spot"
+        findMidpoint: "Find Fair Meeting Spot",
+        crowdHeatmap: "Crowd Density Heatmap"
     },
     hi: {
         title: "कैंपस 360 मार्ग नेविगेशन",
-        subtitle: "शून्य-हार्डवेयर इनडोर मैपिंग। तुरंत स्थान प्राप्त करने के लिए कैमरा दरवाजे की ओर करें।",
+        subtitle: "4 कैंपस भवनों में शून्य-हार्डवेयर इनडोर मैपिंग। तुरंत स्थान प्राप्त करने के लिए कैमरा दरवाजे की ओर करें।",
         fromWhere: "कहाँ से?",
         destination: "कहाँ जाना है?",
         getDirections: "रास्ता दिखाएं",
@@ -93,11 +98,12 @@ const translations: Record<LangKey, Record<string, string>> = {
         scanDoor: "कैमरा / QR स्कैन",
         friend1: "आपका स्थान",
         friend2: "मित्र का स्थान",
-        findMidpoint: "मिलने का स्थान खोजें"
+        findMidpoint: "मिलने का स्थान खोजें",
+        crowdHeatmap: "भीड़ घनत्व हीटमैप"
     },
     te: {
         title: "క్యాంపస్ 360 రూట్ నావిగేషన్",
-        subtitle: "జీరో-హార్డ్‌వేర్ ఇండోర్ మ్యాపింగ్. లొకేషన్ కోసం మీ కెమెరాను తలుపు గుర్తుపై చూపండి.",
+        subtitle: "4 క్యాంపస్ భవనాల్లో జీరో-హార్డ్‌వేర్ ఇండోర్ మ్యాపింగ్. లొకేషన్ కోసం మీ కెమెరాను తలుపు గుర్తుపై చూపండి.",
         fromWhere: "ఎక్కడ నుండి?",
         destination: "చేరాల్సిన ప్రదేశం",
         getDirections: "దిశలను చూపించు",
@@ -121,11 +127,12 @@ const translations: Record<LangKey, Record<string, string>> = {
         scanDoor: "లైవ్ కెమెరా / QR స్కాన్",
         friend1: "మీ లొకేషన్",
         friend2: "స్నేహితుడి లొకేషన్",
-        findMidpoint: "సమాన దూరం కనుగొను"
+        findMidpoint: "సమాన దూరం కనుగొను",
+        crowdHeatmap: "రద్దీ సాంద్రత హీట్‌మ్యాప్"
     },
     ta: {
         title: "வளாகம் 360 வழிசெலுத்தல்",
-        subtitle: "வன்பொருள் இல்லாத உள்ளக வரைபடம். கதவு QR குறியீட்டை ஸ்கேன் செய்யவும்.",
+        subtitle: "4 வளாக கட்டிடங்களில் வன்பொருள் இல்லாத உள்ளக வரைபடம். கதவு QR குறியீட்டை ஸ்கேன் செய்யவும்.",
         fromWhere: "எங்கிருந்து?",
         destination: "செல்ல வேண்டிய இடம்",
         getDirections: "வழிகளைக் காட்டு",
@@ -149,7 +156,8 @@ const translations: Record<LangKey, Record<string, string>> = {
         scanDoor: "கேமரா / QR ஸ்கேன்",
         friend1: "உங்கள் இடம்",
         friend2: "நண்பரின் இடம்",
-        findMidpoint: "சந்திக்கும் இடம் காண்க"
+        findMidpoint: "சந்திக்கும் இடம் காண்க",
+        crowdHeatmap: "கூட்ட நெரிசல் வரைபடம்"
     }
 };
 
@@ -177,18 +185,19 @@ const LocationSearchInput: React.FC<{
 
     const filtered = nodes.filter(n =>
         n.name.toLowerCase().includes(value.toLowerCase()) ||
-        n.id.toLowerCase().includes(value.toLowerCase())
+        n.id.toLowerCase().includes(value.toLowerCase()) ||
+        (n.building && n.building.toLowerCase().includes(value.toLowerCase()))
     );
 
     return (
         <div className="relative" ref={wrapperRef}>
             {label && (
-                <label className={`block text-xs font-semibold mb-1.5 uppercase tracking-wide ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label className={`block text-xs font-semibold mb-1.5 uppercase tracking-wide ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                     {label}
                 </label>
             )}
             <div className="relative">
-                <div className="absolute left-3 top-3 text-gray-400">
+                <div className="absolute left-3 top-3 text-slate-400">
                     {icon}
                 </div>
                 <input
@@ -200,15 +209,15 @@ const LocationSearchInput: React.FC<{
                     }}
                     onFocus={() => setIsOpen(true)}
                     placeholder={placeholder}
-                    className={`w-full pl-9 pr-4 py-2.5 rounded shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border ${
-                        isDark ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900'
+                    className={`w-full pl-9 pr-4 py-2.5 rounded-lg shadow-xs text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 border ${
+                        isDark ? 'bg-slate-800 border-slate-700 text-white placeholder-slate-500' : 'bg-white border-slate-300 text-slate-900'
                     }`}
                 />
             </div>
 
             {isOpen && value && (
-                <ul className={`absolute z-50 w-full mt-1 border rounded-md shadow-lg max-h-48 overflow-y-auto ${
-                    isDark ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-white border-gray-200 text-gray-800'
+                <ul className={`absolute z-50 w-full mt-1 border rounded-lg shadow-xl max-h-56 overflow-y-auto ${
+                    isDark ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-slate-200 text-slate-800'
                 }`}>
                     {filtered.length > 0 ? (
                         filtered.map(n => (
@@ -218,15 +227,23 @@ const LocationSearchInput: React.FC<{
                                     onChange(n.name);
                                     setIsOpen(false);
                                 }}
-                                className={`px-4 py-2 text-sm cursor-pointer border-b last:border-0 ${
-                                    isDark ? 'hover:bg-gray-700 border-gray-700' : 'hover:bg-blue-50 hover:text-blue-700 border-gray-50'
+                                className={`px-3.5 py-2.5 text-xs cursor-pointer border-b last:border-0 flex items-center justify-between ${
+                                    isDark ? 'hover:bg-slate-700 border-slate-700' : 'hover:bg-blue-50 hover:text-blue-700 border-slate-100'
                                 }`}
                             >
-                                <span className="font-semibold">{n.name}</span> <span className="text-xs text-gray-400 ml-1">(Floor {n.floor})</span>
+                                <div>
+                                    <span className="font-bold">{n.name}</span>
+                                    <span className="text-[10px] text-slate-400 ml-1.5">
+                                        ({n.building || 'Academic Block'} · Floor {n.floor})
+                                    </span>
+                                </div>
+                                <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">
+                                    {n.type}
+                                </span>
                             </li>
                         ))
                     ) : (
-                        <li className="px-4 py-3 text-sm text-gray-500 text-center">
+                        <li className="px-4 py-3 text-xs text-slate-500 text-center">
                             No locations found matching "{value}"
                         </li>
                     )}
@@ -240,7 +257,8 @@ export const NavigationPage: React.FC = () => {
     const [searchParams] = useSearchParams();
     const [nodes, setNodes] = useState<any[]>([]);
     const [rawGraph, setRawGraph] = useState<any>({ nodes: [], edges: [] });
-    const [activeMapFloor, setActiveMapFloor] = useState<number>(3);
+    const [activeMapFloor, setActiveMapFloor] = useState<number>(0);
+    const [buildingFilter, setBuildingFilter] = useState<string>('all');
 
     // Theme & Language
     const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
@@ -251,8 +269,8 @@ export const NavigationPage: React.FC = () => {
     const [navMode, setNavMode] = useState<'single' | 'meet'>('single');
 
     // Single Route State
-    const [startText, setStartText] = useState<string>('Room 309 (Hostel)');
-    const [endText, setEndText] = useState<string>('');
+    const [startText, setStartText] = useState<string>('Main Gate');
+    const [endText, setEndText] = useState<string>('AI Lab');
 
     // Meet a Friend State
     const [friend1Start, setFriend1Start] = useState<string>('Room 309 (Hostel)');
@@ -265,13 +283,17 @@ export const NavigationPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // Crowd Density Heatmap State
+    const [showCrowdDensity, setShowCrowdDensity] = useState<boolean>(false);
+    const [crowdDensityData, setCrowdDensityData] = useState<Record<string, string>>({});
+
     // Modals & Panels
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [chatQuery, setChatQuery] = useState('');
     const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'agent', text: string }>>([
-        { role: 'agent', text: 'Hi! I am your Campus 360 AI Assistant. Ask me where to go or where any room is!' }
+        { role: 'agent', text: 'Hi! I am your Campus 360 AI Assistant. Ask me how to reach any room, lab, library, or canteen!' }
     ]);
     const [isChatLoading, setIsChatLoading] = useState(false);
 
@@ -287,7 +309,7 @@ export const NavigationPage: React.FC = () => {
             if (data && data.nodes) {
                 setRawGraph(data);
                 const locs = data.nodes.filter((n: any) =>
-                    ['classroom', 'hostel_room', 'entrance', 'lab', 'stairs', 'lift', 'washroom', 'fire_extinguisher'].includes(n.type)
+                    ['classroom', 'hostel_room', 'entrance', 'lab', 'stairs', 'lift', 'washroom', 'fire_extinguisher', 'room'].includes(n.type)
                 );
                 const sorted = locs.sort((a: any, b: any) => a.name.localeCompare(b.name));
                 setNodes(sorted);
@@ -295,24 +317,40 @@ export const NavigationPage: React.FC = () => {
                 // Auto pre-populate if URL parameters provided (?start=room_309&end=room_104)
                 const startParam = searchParams.get('start');
                 const endParam = searchParams.get('end');
+                let foundStart = '';
+                let foundEnd = '';
+
                 if (startParam) {
-                    const matchedStart = sorted.find((n: any) => n.id === startParam || n.name === startParam);
+                    const matchedStart = sorted.find((n: any) => n.id === startParam || n.name.toLowerCase() === startParam.toLowerCase());
                     if (matchedStart) {
                         setStartText(matchedStart.name);
+                        foundStart = matchedStart.name;
                         if (typeof matchedStart.floor === 'number') setActiveMapFloor(matchedStart.floor);
                     }
                 }
                 if (endParam) {
-                    const matchedEnd = sorted.find((n: any) => n.id === endParam || n.name === endParam);
+                    const matchedEnd = sorted.find((n: any) => n.id === endParam || n.name.toLowerCase() === endParam.toLowerCase());
                     if (matchedEnd) {
                         setEndText(matchedEnd.name);
+                        foundEnd = matchedEnd.name;
                     }
+                }
+
+                // If both parameters were present, auto calculate route
+                if (foundStart && foundEnd) {
+                    executeRoute(foundStart, foundEnd);
                 }
             }
         }).catch(err => {
             console.error("Failed to load graph", err);
             setError("Failed to connect to navigation engine.");
         });
+
+        getAnalytics().then(a => {
+            if (a && a.crowd_density) {
+                setCrowdDensityData(a.crowd_density);
+            }
+        }).catch(console.warn);
 
         getTimetable().then(tt => {
             if (Array.isArray(tt) && tt.length > 0) setNextClass(tt[2] || tt[0]);
@@ -366,6 +404,16 @@ export const NavigationPage: React.FC = () => {
         }
     };
 
+    // Swap locations
+    const handleSwapLocations = () => {
+        const temp = startText;
+        setStartText(endText);
+        setEndText(temp);
+        if (endText && temp) {
+            executeRoute(endText, temp);
+        }
+    };
+
     // Meet a friend calculation
     const handleCalculateMidpoint = async () => {
         setIsLoading(true);
@@ -397,7 +445,6 @@ export const NavigationPage: React.FC = () => {
     // Emergency Evacuation SOS
     const handleSOSEvacuate = () => {
         const startNode = nodes.find(n => n.name.toLowerCase() === startText.toLowerCase() || n.id.toLowerCase() === startText.toLowerCase());
-        // Find nearest emergency stairs or main entrance
         const exits = nodes.filter(n => n.type === 'stairs' || n.type === 'entrance');
         if (exits.length === 0) return;
 
@@ -437,8 +484,7 @@ export const NavigationPage: React.FC = () => {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2500);
 
-        // Open WhatsApp Share
-        const text = encodeURIComponent(`Campus 360 Route from ${startText} to ${endText}: ${url}`);
+        const text = encodeURIComponent(`Campus 360 Indoor Route from ${startText} to ${endText}: ${url}`);
         window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     };
 
@@ -455,7 +501,7 @@ export const NavigationPage: React.FC = () => {
         if (steps.length === 0) return;
 
         const totalSteps = steps.map((s: any, i: number) => `Step ${i + 1}: ${s.instruction}`).join('. ');
-        const speechText = `Starting route. Total distance is ${routeResult.distance} meters. ${totalSteps}. You have arrived.`;
+        const speechText = `Starting route from ${startText} to ${endText}. Total distance is ${routeResult.distance} meters. ${totalSteps}. You have arrived at your destination.`;
 
         const utterance = new SpeechSynthesisUtterance(speechText);
         utterance.rate = 0.95;
@@ -495,9 +541,21 @@ export const NavigationPage: React.FC = () => {
         }
     };
 
+    // Filter nodes by selected building for quick-selection
+    const displayNodes = buildingFilter === 'all'
+        ? nodes
+        : nodes.filter(n => n.building === buildingFilter);
+
+    // Calculate vertical elevation shift if start and end are on different floors
+    const startNodeObj = nodes.find(n => n.name.toLowerCase() === startText.toLowerCase() || n.id.toLowerCase() === startText.toLowerCase());
+    const endNodeObj = nodes.find(n => n.name.toLowerCase() === endText.toLowerCase() || n.id.toLowerCase() === endText.toLowerCase());
+    const floorShift = (startNodeObj && endNodeObj && typeof startNodeObj.floor === 'number' && typeof endNodeObj.floor === 'number')
+        ? endNodeObj.floor - startNodeObj.floor
+        : 0;
+
     return (
         <div className={`h-full overflow-y-auto flex flex-col items-center p-4 sm:p-6 pb-20 transition-colors ${
-            isDarkMode ? 'bg-gray-950 text-white' : 'bg-gray-50 text-gray-900'
+            isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'
         }`}>
 
             {/* Live Camera Scanner Modal */}
@@ -512,26 +570,26 @@ export const NavigationPage: React.FC = () => {
             />
 
             {/* Top Toolbar: Dark Mode, Language Selector, SOS Evacuation */}
-            <div className="w-full max-w-3xl flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div className="w-full max-w-4xl flex flex-wrap items-center justify-between gap-3 mb-5">
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setIsDarkMode(!isDarkMode)}
-                        className={`p-2 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition ${
-                            isDarkMode ? 'bg-gray-800 border-gray-700 text-amber-300' : 'bg-white border-gray-200 text-gray-700 shadow-xs'
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition ${
+                            isDarkMode ? 'bg-slate-800 border-slate-700 text-amber-300' : 'bg-white border-slate-200 text-slate-700 shadow-xs'
                         }`}
                         title="Toggle Dark Mode"
                     >
-                        {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
+                        {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
                         <span>{isDarkMode ? 'Light' : 'Dark'}</span>
                     </button>
 
                     <div className="relative flex items-center">
-                        <Globe size={14} className="absolute left-2.5 text-gray-400 pointer-events-none" />
+                        <Globe size={13} className="absolute left-2.5 text-slate-400 pointer-events-none" />
                         <select
                             value={lang}
                             onChange={(e) => setLang(e.target.value as LangKey)}
                             className={`pl-8 pr-3 py-1.5 rounded-lg border text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-blue-500 ${
-                                isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-700 shadow-xs'
+                                isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-700 shadow-xs'
                             }`}
                         >
                             <option value="en">English</option>
@@ -540,6 +598,20 @@ export const NavigationPage: React.FC = () => {
                             <option value="ta">தமிழ் (Tamil)</option>
                         </select>
                     </div>
+
+                    {/* Crowd Density Heatmap Toggle */}
+                    <button
+                        onClick={() => setShowCrowdDensity(!showCrowdDensity)}
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition ${
+                            showCrowdDensity
+                                ? 'bg-purple-50 border-purple-300 text-purple-700 font-bold'
+                                : isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700 shadow-xs'
+                        }`}
+                        title="Toggle Crowd Density Heatmap"
+                    >
+                        <Activity size={13} className={showCrowdDensity ? "text-purple-600 animate-pulse" : "text-slate-400"} />
+                        <span>{t.crowdHeatmap}</span>
+                    </button>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -554,7 +626,7 @@ export const NavigationPage: React.FC = () => {
 
             {/* Campus Advisory / Maintenance Banner */}
             {maintenanceAlert && (
-                <div className="w-full max-w-3xl mb-4 bg-amber-50 border border-amber-300 rounded-lg p-3.5 flex items-start gap-3 shadow-sm text-gray-900">
+                <div className="w-full max-w-4xl mb-4 bg-amber-50 border border-amber-300 rounded-xl p-3.5 flex items-start gap-3 shadow-xs text-slate-900">
                     <AlertTriangle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
                     <div>
                         <p className="text-xs font-bold text-amber-900 uppercase tracking-wide">
@@ -566,21 +638,21 @@ export const NavigationPage: React.FC = () => {
             )}
 
             {/* Header */}
-            <div className="max-w-3xl w-full text-center mb-5">
-                <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-                <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <div className="max-w-4xl w-full text-center mb-5">
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight">{t.title}</h1>
+                <p className={`text-xs mt-1 max-w-xl mx-auto ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                     {t.subtitle}
                 </p>
             </div>
 
             {/* Mode Switch: Single Route vs Meet a Friend */}
-            <div className="w-full max-w-3xl flex border-b border-gray-200 mb-5">
+            <div className="w-full max-w-4xl flex border-b border-slate-200 mb-5">
                 <button
                     onClick={() => setNavMode('single')}
                     className={`flex-1 py-2.5 text-xs font-bold flex items-center justify-center gap-2 border-b-2 transition ${
                         navMode === 'single'
                             ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-400 hover:text-gray-600'
+                            : 'border-transparent text-slate-400 hover:text-slate-600'
                     }`}
                 >
                     <Navigation size={14} /> {t.singleRoute}
@@ -590,28 +662,28 @@ export const NavigationPage: React.FC = () => {
                     className={`flex-1 py-2.5 text-xs font-bold flex items-center justify-center gap-2 border-b-2 transition ${
                         navMode === 'meet'
                             ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-400 hover:text-gray-600'
+                            : 'border-transparent text-slate-400 hover:text-slate-600'
                     }`}
                 >
                     <Users size={14} /> {t.meetFriend}
                 </button>
             </div>
 
-            {/* 1-Click "My Next Class" Timetable Card (Only in single mode) */}
+            {/* 1-Click "My Next Class" Timetable Card */}
             {navMode === 'single' && nextClass && (
-                <div className={`w-full max-w-3xl border rounded-lg p-3.5 mb-5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm ${
-                    isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-blue-50 border-blue-200'
+                <div className={`w-full max-w-4xl border rounded-xl p-3.5 mb-5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-blue-50/80 border-blue-200'
                 }`}>
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
                             <Calendar size={16} />
                         </div>
                         <div>
-                            <span className="text-[10px] bg-blue-200 text-blue-900 font-bold px-1.5 py-0.2 rounded uppercase">
+                            <span className="text-[10px] bg-blue-200 text-blue-900 font-bold px-2 py-0.5 rounded uppercase">
                                 {t.upcomingClass} ({nextClass.time})
                             </span>
                             <p className="text-xs font-bold mt-0.5">
-                                {nextClass.subject} · <span className="text-blue-500">{nextClass.room}</span>
+                                {nextClass.subject} · <span className="text-blue-600 font-extrabold">{nextClass.room}</span>
                             </p>
                         </div>
                     </div>
@@ -620,7 +692,7 @@ export const NavigationPage: React.FC = () => {
                             setEndText(nextClass.room);
                             executeRoute(startText, nextClass.room);
                         }}
-                        className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold px-3.5 py-1.5 rounded transition shadow-sm flex items-center justify-center gap-1.5"
+                        className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-xs flex items-center justify-center gap-1.5"
                     >
                         <Navigation size={13} /> {t.navClass}
                     </button>
@@ -628,23 +700,50 @@ export const NavigationPage: React.FC = () => {
             )}
 
             {/* Navigation Card Form */}
-            <div className={`w-full max-w-3xl rounded-xl shadow-sm border p-5 sm:p-6 mb-6 ${
-                isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+            <div className={`w-full max-w-4xl rounded-2xl shadow-sm border p-5 sm:p-6 mb-6 ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
             }`}>
                 {navMode === 'single' ? (
                     <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            {/* From Where */}
-                            <div className="relative">
+                        {/* Building Quick Filters */}
+                        <div className="mb-4 flex flex-wrap items-center gap-1.5 pb-3 border-b border-slate-100">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 mr-1 flex items-center gap-1">
+                                <Building2 size={12} /> Sector:
+                            </span>
+                            {[
+                                { id: 'all', label: 'All Campus' },
+                                { id: 'Academic Block A', label: 'Academic Block A' },
+                                { id: 'Central Library', label: 'Central Library' },
+                                { id: 'Campus Canteen', label: 'Food Court' },
+                                { id: 'Hostel Block', label: 'Hostels' },
+                            ].map(b => (
+                                <button
+                                    key={b.id}
+                                    onClick={() => setBuildingFilter(b.id)}
+                                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
+                                        buildingFilter === b.id
+                                            ? 'bg-blue-600 text-white shadow-xs'
+                                            : isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                                >
+                                    {b.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Search Input Columns with Swap Button */}
+                        <div className="grid grid-cols-1 md:grid-cols-11 gap-3 items-center">
+                            {/* Origin */}
+                            <div className="md:col-span-5">
                                 <div className="flex items-center justify-between mb-1.5">
-                                    <label className={`block text-xs font-semibold uppercase tracking-wide ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    <label className={`block text-xs font-semibold uppercase tracking-wide ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
                                         {t.fromWhere}
                                     </label>
                                     <button
                                         onClick={() => setIsCameraOpen(true)}
-                                        className="text-[11px] bg-blue-50 text-blue-700 px-2.5 py-1 rounded font-medium flex items-center gap-1 hover:bg-blue-100 transition shadow-xs border border-blue-200"
+                                        className="text-[11px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-medium flex items-center gap-1 hover:bg-blue-100 transition border border-blue-200"
                                     >
-                                        <ImageIcon size={12} /> {t.scanDoor}
+                                        <ImageIcon size={11} /> {t.scanDoor}
                                     </button>
                                 </div>
                                 <LocationSearchInput
@@ -652,64 +751,106 @@ export const NavigationPage: React.FC = () => {
                                     icon={<MapPin size={16} />}
                                     value={startText}
                                     onChange={setStartText}
-                                    nodes={nodes}
-                                    placeholder="e.g. Room 309 (Hostel)"
+                                    nodes={displayNodes}
+                                    placeholder="e.g. Main Gate or Room 309"
                                     isDark={isDarkMode}
                                 />
                             </div>
 
+                            {/* Swap Button */}
+                            <div className="md:col-span-1 flex justify-center py-1">
+                                <button
+                                    type="button"
+                                    onClick={handleSwapLocations}
+                                    className={`p-2 rounded-full border shadow-xs hover:scale-105 transition ${
+                                        isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white' : 'bg-slate-100 border-slate-200 text-slate-600 hover:text-blue-700'
+                                    }`}
+                                    title="Swap Origin & Destination"
+                                >
+                                    <ArrowUpDown size={15} />
+                                </button>
+                            </div>
+
                             {/* Destination */}
-                            <div>
+                            <div className="md:col-span-5">
                                 <div className="flex items-center justify-between mb-1.5">
-                                    <label className={`block text-xs font-semibold uppercase tracking-wide ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    <label className={`block text-xs font-semibold uppercase tracking-wide ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
                                         {t.destination}
                                     </label>
-                                    <span className="text-[10px] text-gray-400">Classroom, Lab or Office</span>
+                                    <span className="text-[10px] text-slate-400">Class, Lab, Library</span>
                                 </div>
                                 <LocationSearchInput
                                     label=""
                                     icon={<Search size={16} className="text-blue-500" />}
                                     value={endText}
                                     onChange={setEndText}
-                                    nodes={nodes}
-                                    placeholder="e.g. Room 104 or AI Lab"
+                                    nodes={displayNodes}
+                                    placeholder="e.g. AI Lab, Library, or Canteen"
                                     isDark={isDarkMode}
                                 />
                             </div>
                         </div>
 
-                        {/* Quick Amenities Toolbar */}
-                        <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                        {/* Popular Quick Destination Chips */}
+                        <div className="mt-3.5 flex flex-wrap items-center gap-1.5 text-xs">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 mr-1">Frequent:</span>
+                            {[
+                                { name: 'AI Lab', desc: 'F2' },
+                                { name: 'Room 309 (Hostel)', desc: 'Hostel' },
+                                { name: 'Central Library', desc: 'Library' },
+                                { name: 'Campus Canteen', desc: 'Dining' },
+                                { name: 'Room 101', desc: 'F1' },
+                                { name: 'Hostel Dining Mess', desc: 'Mess' }
+                            ].map(item => (
+                                <button
+                                    key={item.name}
+                                    onClick={() => {
+                                        setEndText(item.name);
+                                        executeRoute(startText, item.name);
+                                    }}
+                                    className={`text-[11px] px-2.5 py-0.5 rounded-full border transition ${
+                                        isDarkMode
+                                            ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                                            : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300'
+                                    }`}
+                                >
+                                    {item.name}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Quick Amenities & Accessibility Bar */}
+                        <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
                             <div className="flex flex-wrap items-center gap-1.5">
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1">{t.findNearest}</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">{t.findNearest}</span>
                                 <button
                                     onClick={() => handleFindNearest('washroom')}
-                                    className={`text-xs px-2.5 py-1 rounded flex items-center gap-1 transition ${
-                                        isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                    className={`text-xs px-2.5 py-1 rounded-md flex items-center gap-1 transition ${
+                                        isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                                     }`}
                                 >
                                     <Droplets size={12} className="text-blue-500" /> {t.washroom}
                                 </button>
                                 <button
                                     onClick={() => handleFindNearest('lift')}
-                                    className={`text-xs px-2.5 py-1 rounded flex items-center gap-1 transition ${
-                                        isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                    className={`text-xs px-2.5 py-1 rounded-md flex items-center gap-1 transition ${
+                                        isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                                     }`}
                                 >
                                     <ArrowUpCircle size={12} className="text-amber-500" /> {t.elevator}
                                 </button>
                                 <button
                                     onClick={() => handleFindNearest('fire_extinguisher')}
-                                    className={`text-xs px-2.5 py-1 rounded flex items-center gap-1 transition ${
-                                        isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                    className={`text-xs px-2.5 py-1 rounded-md flex items-center gap-1 transition ${
+                                        isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                                     }`}
                                 >
                                     <Flame size={12} className="text-red-500" /> {t.fireExt}
                                 </button>
                                 <button
                                     onClick={() => handleFindNearest('lab')}
-                                    className={`text-xs px-2.5 py-1 rounded flex items-center gap-1 transition ${
-                                        isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                    className={`text-xs px-2.5 py-1 rounded-md flex items-center gap-1 transition ${
+                                        isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                                     }`}
                                 >
                                     <Sparkles size={12} className="text-purple-500" /> {t.labs}
@@ -717,7 +858,7 @@ export const NavigationPage: React.FC = () => {
                             </div>
 
                             {/* Step-Free Accessibility Toggle */}
-                            <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium">
+                            <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold">
                                 <input
                                     type="checkbox"
                                     checked={accessibleOnly}
@@ -727,18 +868,18 @@ export const NavigationPage: React.FC = () => {
                                     }}
                                     className="w-3.5 h-3.5 text-blue-600 rounded"
                                 />
-                                <span className="flex items-center gap-1 text-gray-400">
-                                    <Accessibility size={13} className="text-blue-500" /> {t.stepFree}
+                                <span className="flex items-center gap-1 text-slate-500">
+                                    <Accessibility size={13} className="text-blue-600" /> {t.stepFree}
                                 </span>
                             </label>
                         </div>
 
-                        {/* Action buttons */}
+                        {/* Action Buttons */}
                         <div className="mt-5 flex items-center justify-between">
                             {routeResult && (
                                 <button
                                     onClick={handleShareRoute}
-                                    className="px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 border border-gray-300 hover:bg-gray-100 text-gray-700 transition"
+                                    className="px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-300 hover:bg-slate-100 text-slate-700 transition"
                                 >
                                     {isCopied ? <Check size={14} className="text-green-600" /> : <Share2 size={14} />}
                                     <span>{isCopied ? 'Link Copied!' : t.shareRoute}</span>
@@ -748,8 +889,9 @@ export const NavigationPage: React.FC = () => {
                             <button
                                 onClick={() => executeRoute(startText, endText)}
                                 disabled={isLoading || !startText || !endText}
-                                className="ml-auto bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm disabled:opacity-50 transition flex items-center gap-2 text-xs"
+                                className="ml-auto bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm disabled:opacity-50 transition flex items-center gap-2 text-xs"
                             >
+                                <Navigation size={14} />
                                 {isLoading ? t.calculating : t.getDirections}
                             </button>
                         </div>
@@ -764,7 +906,7 @@ export const NavigationPage: React.FC = () => {
                                 value={friend1Start}
                                 onChange={setFriend1Start}
                                 nodes={nodes}
-                                placeholder="e.g. Room 309"
+                                placeholder="e.g. Room 309 (Hostel)"
                                 isDark={isDarkMode}
                             />
                             <LocationSearchInput
@@ -773,7 +915,7 @@ export const NavigationPage: React.FC = () => {
                                 value={friend2Start}
                                 onChange={setFriend2Start}
                                 nodes={nodes}
-                                placeholder="e.g. Room 101"
+                                placeholder="e.g. Room 101 (Academic Block)"
                                 isDark={isDarkMode}
                             />
                         </div>
@@ -782,7 +924,7 @@ export const NavigationPage: React.FC = () => {
                             <button
                                 onClick={handleCalculateMidpoint}
                                 disabled={isLoading || !friend1Start || !friend2Start}
-                                className="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm disabled:opacity-50 transition flex items-center gap-2 text-xs"
+                                className="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm disabled:opacity-50 transition flex items-center gap-2 text-xs"
                             >
                                 <Users size={14} /> {isLoading ? 'Calculating Midpoint...' : t.findMidpoint}
                             </button>
@@ -791,7 +933,7 @@ export const NavigationPage: React.FC = () => {
                 )}
 
                 {error && (
-                    <div className="mt-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs font-medium">
+                    <div className="mt-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-medium">
                         {error}
                     </div>
                 )}
@@ -799,13 +941,13 @@ export const NavigationPage: React.FC = () => {
 
             {/* Meet a Friend Midpoint Result Card */}
             {midpointResult && (
-                <div className={`w-full max-w-3xl border rounded-xl p-5 mb-5 shadow-sm space-y-4 ${
-                    isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-blue-200'
+                <div className={`w-full max-w-4xl border rounded-2xl p-5 mb-5 shadow-sm space-y-4 ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-blue-200'
                 }`}>
-                    <div className="flex items-center justify-between border-b pb-3 border-gray-100">
+                    <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                         <div>
                             <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-900 px-2 py-0.5 rounded">
-                                Optimal Meeting Venue Found
+                                Optimal Fair Meeting Venue
                             </span>
                             <h2 className="text-xl font-bold mt-1 text-blue-600">
                                 {midpointResult.midpoint_name} (Floor {midpointResult.floor})
@@ -815,47 +957,59 @@ export const NavigationPage: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="font-bold text-gray-800">{friend1Start}</p>
-                            <p className="text-gray-500 mt-0.5">
-                                Distance: <span className="font-semibold text-gray-900">{midpointResult.student_a?.distance}m</span> ({midpointResult.student_a?.estimated_time_seconds}s walk)
+                        <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                            <p className="font-bold text-slate-800">{friend1Start}</p>
+                            <p className="text-slate-500 mt-1">
+                                Distance: <span className="font-semibold text-slate-900">{midpointResult.student_a?.distance}m</span> ({midpointResult.student_a?.estimated_time_seconds}s walk)
                             </p>
                         </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="font-bold text-gray-800">{friend2Start}</p>
-                            <p className="text-gray-500 mt-0.5">
-                                Distance: <span className="font-semibold text-gray-900">{midpointResult.student_b?.distance}m</span> ({midpointResult.student_b?.estimated_time_seconds}s walk)
+                        <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                            <p className="font-bold text-slate-800">{friend2Start}</p>
+                            <p className="text-slate-500 mt-1">
+                                Distance: <span className="font-semibold text-slate-900">{midpointResult.student_b?.distance}m</span> ({midpointResult.student_b?.estimated_time_seconds}s walk)
                             </p>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Results Area (Single Route) */}
+            {/* Single Route Results Area */}
             {routeResult && routeResult.instructions && (
-                <div className="w-full max-w-3xl space-y-5">
+                <div className="w-full max-w-4xl space-y-5">
                     {/* Summary Card with Voice Reader */}
-                    <div className={`border rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm ${
-                        isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+                    <div className={`border rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm ${
+                        isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
                     }`}>
-                        <div className="flex items-center gap-6">
+                        <div className="flex flex-wrap items-center gap-6">
                             <div>
-                                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{t.fastestRoute}</p>
-                                <p className="text-xl font-bold mt-0.5">{routeResult.distance || 0} meters</p>
+                                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{t.fastestRoute}</p>
+                                <p className="text-xl font-black mt-0.5 text-blue-600">{routeResult.distance || 0} meters</p>
                             </div>
-                            <div className="h-8 w-px bg-gray-300" />
+                            <div className="h-8 w-px bg-slate-200 hidden sm:block" />
                             <div>
-                                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{t.estTime}</p>
-                                <p className="text-xl font-bold mt-0.5">{routeResult.estimated_time_seconds || 0} seconds</p>
+                                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{t.estTime}</p>
+                                <p className="text-xl font-black mt-0.5">{routeResult.estimated_time_seconds || 0} seconds</p>
                             </div>
+                            {floorShift !== 0 && (
+                                <>
+                                    <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+                                    <div>
+                                        <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Vertical Shift</p>
+                                        <p className="text-xs font-bold mt-1 text-amber-600 flex items-center gap-1">
+                                            <ArrowUpCircle size={14} />
+                                            {floorShift > 0 ? `+${floorShift} Floors Up` : `${floorShift} Floors Down`}
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         <button
                             onClick={handleToggleSpeech}
-                            className={`px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition ${
+                            className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition ${
                                 isSpeaking
                                     ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                                    : isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                                    : isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-200' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
                             }`}
                         >
                             {isSpeaking ? (
@@ -864,32 +1018,38 @@ export const NavigationPage: React.FC = () => {
                                 </>
                             ) : (
                                 <>
-                                    <Volume2 size={15} className="text-blue-500" /> {t.voiceNav}
+                                    <Volume2 size={15} className="text-blue-600" /> {t.voiceNav}
                                 </>
                             )}
                         </button>
                     </div>
 
-                    {/* Visual 2D Map */}
-                    <div className={`border rounded-xl overflow-hidden shadow-sm ${
-                        isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+                    {/* Visual 2D Map Container */}
+                    <div className={`border rounded-2xl overflow-hidden shadow-sm ${
+                        isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
                     }`}>
-                        <div className={`px-5 py-3 border-b flex flex-wrap items-center justify-between gap-2 ${
-                            isDarkMode ? 'bg-gray-800/60 border-gray-800' : 'bg-gray-50 border-gray-200'
+                        <div className={`px-5 py-3.5 border-b flex flex-wrap items-center justify-between gap-3 ${
+                            isDarkMode ? 'bg-slate-800/60 border-slate-800' : 'bg-slate-50 border-slate-200'
                         }`}>
                             <div className="flex items-center gap-2">
-                                <Map size={16} className="text-gray-400" />
-                                <h3 className="text-xs font-bold">Live 2D Top-Down Path</h3>
+                                <Compass size={16} className="text-blue-600" />
+                                <h3 className="text-xs font-bold uppercase tracking-wider">Live Campus Spatial Map</h3>
+                                {showCrowdDensity && (
+                                    <span className="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+                                        Heatmap Layer Active
+                                    </span>
+                                )}
                             </div>
-                            <div className="flex items-center gap-1">
+                            
+                            <div className="flex items-center gap-1.5">
                                 {[0, 1, 2, 3].map(f => (
                                     <button
                                         key={f}
                                         onClick={() => setActiveMapFloor(f)}
-                                        className={`px-2 py-0.5 rounded text-[10px] font-semibold transition ${
+                                        className={`px-3 py-1 rounded-md text-xs font-bold transition ${
                                             activeMapFloor === f
-                                                ? 'bg-blue-600 text-white'
-                                                : isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                                ? 'bg-blue-600 text-white shadow-xs'
+                                                : isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                                         }`}
                                     >
                                         {f === 0 ? 'Ground' : `Floor ${f}`}
@@ -897,53 +1057,57 @@ export const NavigationPage: React.FC = () => {
                                 ))}
                             </div>
                         </div>
-                        <div className={`p-4 flex justify-center ${isDarkMode ? 'bg-gray-950' : 'bg-gray-100'}`}>
+
+                        <div className={`p-4 sm:p-5 flex justify-center ${isDarkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
                             <FloorPlanMap
                                 graphData={rawGraph}
                                 currentFloor={activeMapFloor}
                                 path={routeResult.path || []}
                                 startNode={routeResult.path?.[0]}
                                 endNode={routeResult.path?.[routeResult.path?.length - 1]}
+                                showCrowdDensity={showCrowdDensity}
+                                crowdDensityData={crowdDensityData}
                             />
                         </div>
                     </div>
 
                     {/* Step-by-Step Directions */}
-                    <div className={`border rounded-xl overflow-hidden shadow-sm ${
-                        isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+                    <div className={`border rounded-2xl overflow-hidden shadow-sm ${
+                        isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
                     }`}>
-                        <div className={`px-5 py-3 border-b flex items-center gap-2 ${
-                            isDarkMode ? 'bg-gray-800/60 border-gray-800' : 'bg-gray-50 border-gray-200'
+                        <div className={`px-5 py-3.5 border-b flex items-center gap-2 ${
+                            isDarkMode ? 'bg-slate-800/60 border-slate-800' : 'bg-slate-50 border-slate-200'
                         }`}>
-                            <MapPin size={16} className="text-gray-400" />
-                            <h3 className="text-xs font-bold">Step-by-Step Directions</h3>
+                            <MapPin size={16} className="text-blue-600" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider">Turn-by-Turn Navigation Instructions</h3>
                         </div>
-                        <div className="p-0 divide-y divide-gray-100">
+                        
+                        <div className="p-0 divide-y divide-slate-100">
                             {routeResult.instructions.map((step: any, idx: number) => {
                                 const pathArray = routeResult.path || [];
                                 const stepNodeId = step.node_id || pathArray[idx] || '';
                                 const photoUrl = photoMap[stepNodeId];
 
                                 return (
-                                    <div key={idx} className="flex relative">
+                                    <div key={idx} className="flex relative hover:bg-slate-50/50 transition-colors">
                                         <div className="w-14 flex flex-col items-center py-5 relative">
-                                            <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold z-10">
+                                            <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold z-10 shadow-xs">
                                                 {idx + 1}
                                             </div>
                                             {idx !== routeResult.instructions.length - 1 && (
-                                                <div className="absolute top-11 bottom-0 w-0.5 bg-gray-200" />
+                                                <div className="absolute top-11 bottom-0 w-0.5 bg-slate-200" />
                                             )}
                                         </div>
 
                                         <div className="flex-1 py-5 pr-5">
-                                            <p className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                                            <p className={`text-xs font-semibold leading-relaxed ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
                                                 {step.instruction || 'Continue along designated path'}
                                             </p>
 
                                             {photoUrl && (
-                                                <div className="mt-3 border rounded-lg overflow-hidden relative max-w-md shadow-xs border-gray-300">
+                                                <div className="mt-3 border rounded-xl overflow-hidden relative max-w-md shadow-xs border-slate-300">
                                                     <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded flex items-center gap-1 backdrop-blur-sm">
-                                                        <ImageIcon size={10} /> Real Corridor View
+                                                        <ImageIcon size={10} /> Real Corridor Sign View
                                                     </div>
                                                     <img
                                                         src={photoUrl}
@@ -972,7 +1136,7 @@ export const NavigationPage: React.FC = () => {
                         <MessageSquare size={22} />
                     </button>
                 ) : (
-                    <div className="w-80 sm:w-96 bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-96 text-gray-900">
+                    <div className="w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-96 text-slate-900">
                         {/* Chat Header */}
                         <div className="px-4 py-3 bg-blue-700 text-white flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -995,25 +1159,25 @@ export const NavigationPage: React.FC = () => {
                                     className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div className={`p-2.5 rounded-xl max-w-[85%] ${
-                                        m.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
+                                        m.role === 'user' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-800'
                                     }`}>
                                         {m.text}
                                     </div>
                                 </div>
                             ))}
                             {isChatLoading && (
-                                <div className="text-gray-400 italic text-[11px] p-2">AI is thinking...</div>
+                                <div className="text-slate-400 italic text-[11px] p-2">AI is calculating route...</div>
                             )}
                         </div>
 
                         {/* Input Form */}
-                        <form onSubmit={handleSendChatMessage} className="p-2 border-t border-gray-200 flex gap-1.5 bg-gray-50">
+                        <form onSubmit={handleSendChatMessage} className="p-2 border-t border-slate-200 flex gap-1.5 bg-slate-50">
                             <input
                                 type="text"
                                 value={chatQuery}
                                 onChange={e => setChatQuery(e.target.value)}
-                                placeholder="e.g. How to get to AI Lab?"
-                                className="flex-1 text-xs px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="e.g. Where is Central Library?"
+                                className="flex-1 text-xs px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
                             />
                             <button
                                 type="submit"

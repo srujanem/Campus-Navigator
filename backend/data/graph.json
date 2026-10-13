@@ -4,7 +4,7 @@
       "id": "corridor_0_w",
       "name": "West Corridor F0",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 0,
       "x": 120,
       "y": 200
@@ -13,7 +13,7 @@
       "id": "corridor_0_mid",
       "name": "Main Corridor F0",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 0,
       "x": 300,
       "y": 200
@@ -22,7 +22,7 @@
       "id": "corridor_0_e",
       "name": "East Corridor F0",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 0,
       "x": 480,
       "y": 200
@@ -31,7 +31,7 @@
       "id": "stairs_a_0",
       "name": "Staircase A (F0)",
       "type": "stairs",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 0,
       "x": 60,
       "y": 200
@@ -40,7 +40,7 @@
       "id": "stairs_b_0",
       "name": "Staircase B (F0)",
       "type": "stairs",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 0,
       "x": 540,
       "y": 200
@@ -49,7 +49,7 @@
       "id": "lift_0",
       "name": "Lift (F0)",
       "type": "lift",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 0,
       "x": 540,
       "y": 180
@@ -58,52 +58,88 @@
       "id": "entrance_main",
       "name": "Main Gate",
       "type": "entrance",
+      "building": "Academic Block A",
       "x": 300,
       "y": 300,
-      "building": "Block A",
       "floor": 0
     },
     {
       "id": "reception",
       "name": "Reception",
       "type": "room",
+      "building": "Academic Block A",
       "x": 220,
       "y": 120,
-      "building": "Block A",
       "floor": 0
     },
     {
       "id": "security",
       "name": "Security Room",
       "type": "room",
+      "building": "Academic Block A",
       "x": 380,
       "y": 120,
-      "building": "Block A",
       "floor": 0
     },
     {
       "id": "washroom_0",
       "name": "Washroom GF",
       "type": "washroom",
+      "building": "Academic Block A",
       "x": 460,
       "y": 120,
-      "building": "Block A",
       "floor": 0
     },
     {
       "id": "fe_0",
       "name": "Fire Ext. GF",
       "type": "fire_extinguisher",
+      "building": "Academic Block A",
       "x": 300,
       "y": 170,
-      "building": "Block A",
+      "floor": 0
+    },
+    {
+      "id": "central_library",
+      "name": "Central Library",
+      "type": "room",
+      "building": "Central Library",
+      "x": 80,
+      "y": 350,
+      "floor": 0
+    },
+    {
+      "id": "canteen",
+      "name": "Campus Canteen",
+      "type": "room",
+      "building": "Campus Canteen",
+      "x": 520,
+      "y": 350,
+      "floor": 0
+    },
+    {
+      "id": "hostel_mess",
+      "name": "Hostel Dining Mess",
+      "type": "room",
+      "building": "Hostel Block",
+      "x": 620,
+      "y": 320,
+      "floor": 0
+    },
+    {
+      "id": "warden_office",
+      "name": "Warden Office",
+      "type": "room",
+      "building": "Hostel Block",
+      "x": 640,
+      "y": 260,
       "floor": 0
     },
     {
       "id": "corridor_1_w",
       "name": "West Corridor F1",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 1,
       "x": 120,
       "y": 200
@@ -112,7 +148,7 @@
       "id": "corridor_1_mid",
       "name": "Main Corridor F1",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 1,
       "x": 300,
       "y": 200
@@ -121,7 +157,7 @@
       "id": "corridor_1_e",
       "name": "East Corridor F1",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 1,
       "x": 480,
       "y": 200
@@ -130,7 +166,7 @@
       "id": "stairs_a_1",
       "name": "Staircase A (F1)",
       "type": "stairs",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 1,
       "x": 60,
       "y": 200
@@ -139,7 +175,7 @@
       "id": "stairs_b_1",
       "name": "Staircase B (F1)",
       "type": "stairs",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 1,
       "x": 540,
       "y": 200
@@ -148,7 +184,7 @@
       "id": "lift_1",
       "name": "Lift (F1)",
       "type": "lift",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 1,
       "x": 540,
       "y": 180
@@ -157,61 +193,61 @@
       "id": "room_101",
       "name": "Room 101",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 140,
       "y": 120,
-      "building": "Block A",
       "floor": 1
     },
     {
       "id": "room_102",
       "name": "Room 102",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 220,
       "y": 120,
-      "building": "Block A",
       "floor": 1
     },
     {
       "id": "room_103",
       "name": "Room 103",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 300,
       "y": 120,
-      "building": "Block A",
       "floor": 1
     },
     {
       "id": "room_104",
       "name": "Room 104",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 380,
       "y": 120,
-      "building": "Block A",
       "floor": 1
     },
     {
       "id": "washroom_1",
       "name": "Washroom F1",
       "type": "washroom",
+      "building": "Academic Block A",
       "x": 460,
       "y": 120,
-      "building": "Block A",
       "floor": 1
     },
     {
       "id": "fe_1",
       "name": "Fire Ext. F1",
       "type": "fire_extinguisher",
+      "building": "Academic Block A",
       "x": 300,
       "y": 170,
-      "building": "Block A",
       "floor": 1
     },
     {
       "id": "corridor_2_w",
       "name": "West Corridor F2",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 2,
       "x": 120,
       "y": 200
@@ -220,7 +256,7 @@
       "id": "corridor_2_mid",
       "name": "Main Corridor F2",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 2,
       "x": 300,
       "y": 200
@@ -229,7 +265,7 @@
       "id": "corridor_2_e",
       "name": "East Corridor F2",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 2,
       "x": 480,
       "y": 200
@@ -238,7 +274,7 @@
       "id": "stairs_a_2",
       "name": "Staircase A (F2)",
       "type": "stairs",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 2,
       "x": 60,
       "y": 200
@@ -247,7 +283,7 @@
       "id": "stairs_b_2",
       "name": "Staircase B (F2)",
       "type": "stairs",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 2,
       "x": 540,
       "y": 200
@@ -256,7 +292,7 @@
       "id": "lift_2",
       "name": "Lift (F2)",
       "type": "lift",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 2,
       "x": 540,
       "y": 180
@@ -265,70 +301,70 @@
       "id": "room_201",
       "name": "Room 201",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 140,
       "y": 120,
-      "building": "Block A",
       "floor": 2
     },
     {
       "id": "room_202",
       "name": "Room 202",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 220,
       "y": 120,
-      "building": "Block A",
       "floor": 2
     },
     {
       "id": "room_203",
       "name": "Room 203",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 300,
       "y": 120,
-      "building": "Block A",
       "floor": 2
     },
     {
       "id": "room_204",
       "name": "Room 204",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 380,
       "y": 120,
-      "building": "Block A",
       "floor": 2
     },
     {
       "id": "ai_lab",
       "name": "AI Lab",
       "type": "lab",
+      "building": "Academic Block A",
       "x": 460,
       "y": 120,
-      "building": "Block A",
       "floor": 2
     },
     {
       "id": "washroom_2",
       "name": "Washroom F2",
       "type": "washroom",
+      "building": "Academic Block A",
       "x": 460,
       "y": 280,
-      "building": "Block A",
       "floor": 2
     },
     {
       "id": "fe_2",
       "name": "Fire Ext. F2",
       "type": "fire_extinguisher",
+      "building": "Academic Block A",
       "x": 300,
       "y": 170,
-      "building": "Block A",
       "floor": 2
     },
     {
       "id": "corridor_3_w",
       "name": "West Corridor F3",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 3,
       "x": 120,
       "y": 200
@@ -337,7 +373,7 @@
       "id": "corridor_3_mid",
       "name": "Main Corridor F3",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 3,
       "x": 300,
       "y": 200
@@ -346,7 +382,7 @@
       "id": "corridor_3_e",
       "name": "East Corridor F3",
       "type": "corridor",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 3,
       "x": 480,
       "y": 200
@@ -355,7 +391,7 @@
       "id": "stairs_a_3",
       "name": "Staircase A (F3)",
       "type": "stairs",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 3,
       "x": 60,
       "y": 200
@@ -364,7 +400,7 @@
       "id": "stairs_b_3",
       "name": "Staircase B (F3)",
       "type": "stairs",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 3,
       "x": 540,
       "y": 200
@@ -373,7 +409,7 @@
       "id": "lift_3",
       "name": "Lift (F3)",
       "type": "lift",
-      "building": "Block A",
+      "building": "Academic Block A",
       "floor": 3,
       "x": 540,
       "y": 180
@@ -382,81 +418,81 @@
       "id": "room_301",
       "name": "Room 301",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 140,
       "y": 120,
-      "building": "Block A",
       "floor": 3
     },
     {
       "id": "room_302",
       "name": "Room 302",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 220,
       "y": 120,
-      "building": "Block A",
       "floor": 3
     },
     {
       "id": "room_303",
       "name": "Room 303",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 300,
       "y": 120,
-      "building": "Block A",
       "floor": 3
     },
     {
       "id": "room_304",
       "name": "Room 304",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 380,
       "y": 120,
-      "building": "Block A",
       "floor": 3
     },
     {
       "id": "room_305",
       "name": "Room 305",
       "type": "classroom",
+      "building": "Academic Block A",
       "x": 460,
       "y": 120,
-      "building": "Block A",
       "floor": 3
     },
     {
       "id": "room_309",
       "name": "Room 309 (Hostel)",
       "type": "hostel_room",
+      "building": "Hostel Block",
       "x": 540,
       "y": 120,
-      "building": "Block A",
       "floor": 3
     },
     {
       "id": "room_310",
       "name": "Room 310 (Hostel)",
       "type": "hostel_room",
+      "building": "Hostel Block",
       "x": 620,
       "y": 120,
-      "building": "Block A",
       "floor": 3
     },
     {
       "id": "washroom_3",
       "name": "Washroom F3",
       "type": "washroom",
+      "building": "Academic Block A",
       "x": 460,
       "y": 280,
-      "building": "Block A",
       "floor": 3
     },
     {
       "id": "fe_3",
       "name": "Fire Ext. F3",
       "type": "fire_extinguisher",
+      "building": "Academic Block A",
       "x": 300,
       "y": 170,
-      "building": "Block A",
       "floor": 3
     }
   ],
@@ -518,6 +554,30 @@
     {
       "source": "fe_0",
       "target": "corridor_0_mid",
+      "distance": 8,
+      "type": "door"
+    },
+    {
+      "source": "central_library",
+      "target": "corridor_0_w",
+      "distance": 8,
+      "type": "door"
+    },
+    {
+      "source": "canteen",
+      "target": "corridor_0_e",
+      "distance": 8,
+      "type": "door"
+    },
+    {
+      "source": "hostel_mess",
+      "target": "corridor_0_e",
+      "distance": 8,
+      "type": "door"
+    },
+    {
+      "source": "warden_office",
+      "target": "corridor_0_e",
       "distance": 8,
       "type": "door"
     },
@@ -802,6 +862,30 @@
       "target": "lift_3",
       "distance": 5,
       "type": "lift"
+    },
+    {
+      "source": "entrance_main",
+      "target": "central_library",
+      "distance": 22,
+      "type": "walkable"
+    },
+    {
+      "source": "entrance_main",
+      "target": "canteen",
+      "distance": 18,
+      "type": "walkable"
+    },
+    {
+      "source": "canteen",
+      "target": "hostel_mess",
+      "distance": 15,
+      "type": "walkable"
+    },
+    {
+      "source": "hostel_mess",
+      "target": "warden_office",
+      "distance": 8,
+      "type": "walkable"
     }
   ]
 }

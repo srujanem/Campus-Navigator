@@ -2,7 +2,7 @@
   "buildings": [
     {
       "id": "block_a",
-      "name": "Block A",
+      "name": "Academic Block A",
       "floors": [
         {
           "id": 0,
@@ -19,6 +19,40 @@
         {
           "id": 3,
           "name": "Third Floor"
+        }
+      ]
+    },
+    {
+      "id": "hostel_block",
+      "name": "Hostel Block",
+      "floors": [
+        {
+          "id": 0,
+          "name": "Hostel Ground & Dining"
+        },
+        {
+          "id": 3,
+          "name": "Hostel Floor 3 (Rooms 309-310)"
+        }
+      ]
+    },
+    {
+      "id": "central_library",
+      "name": "Central Library",
+      "floors": [
+        {
+          "id": 0,
+          "name": "Ground Reading Floor"
+        }
+      ]
+    },
+    {
+      "id": "canteen",
+      "name": "Campus Canteen",
+      "floors": [
+        {
+          "id": 0,
+          "name": "Food Court & Dining"
         }
       ]
     }
