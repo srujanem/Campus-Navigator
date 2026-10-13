@@ -1,17 +1,19 @@
 import React from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Map, QrCode, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, FileText, Map, QrCode, AlertTriangle, BarChart3 } from 'lucide-react';
 import { AdminDashboard } from '../pages/AdminDashboard';
 import { BlueprintStudio } from '../pages/BlueprintStudio';
 import { AdminPage } from '../pages/AdminPage';
 import { AdminQRGenerator } from '../pages/AdminQRGenerator';
 import { AdminMaintenancePage } from '../pages/AdminMaintenancePage';
+import { AdminAnalyticsPage } from '../pages/AdminAnalyticsPage';
 
 const AdminSidebar: React.FC = () => {
     const location = useLocation();
 
     const navItems = [
         { path: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={15} />, exact: true },
+        { path: '/admin/analytics', label: 'Analytics & Events', icon: <BarChart3 size={15} />, exact: false },
         { path: '/admin/blueprint', label: 'Blueprint & Vision Studio', icon: <FileText size={15} />, exact: false },
         { path: '/admin/campus', label: 'Campus Graph Setup', icon: <Map size={15} />, exact: false },
         { path: '/admin/qr', label: 'Printable Door QRs', icon: <QrCode size={15} />, exact: false },
@@ -62,6 +64,7 @@ export const AdminPortal: React.FC = () => {
             <div className="flex-1 overflow-hidden bg-gray-50">
                 <Routes>
                     <Route path="/" element={<AdminDashboard />} />
+                    <Route path="/analytics" element={<AdminAnalyticsPage />} />
                     <Route path="/blueprint" element={<BlueprintStudio />} />
                     <Route path="/campus" element={<AdminPage />} />
                     <Route path="/qr" element={<AdminQRGenerator />} />

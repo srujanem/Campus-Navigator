@@ -15,8 +15,37 @@ export const calculateRoute = async (startId: string, endId: string, accessibleO
     return res.json();
 };
 
+export const calculateMidpoint = async (startAId: string, startBId: string) => {
+    const res = await fetch(`${API_BASE}/navigation/midpoint`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ start_a_id: startAId, start_b_id: startBId })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+};
+
 export const getTimetable = async () => {
     const res = await fetch(`${API_BASE}/timetable`);
+    return res.json();
+};
+
+export const getEvents = async () => {
+    const res = await fetch(`${API_BASE}/events`);
+    return res.json();
+};
+
+export const addEvent = async (eventData: any) => {
+    const res = await fetch(`${API_BASE}/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData)
+    });
+    return res.json();
+};
+
+export const getAnalytics = async () => {
+    const res = await fetch(`${API_BASE}/analytics`);
     return res.json();
 };
 
@@ -58,5 +87,4 @@ export const analyzeImage = async (file: File) => {
     return res.json();
 };
 
-// Alias used by NavigationPage for natural-language destination resolution
 export const askAgent = agentQuery;

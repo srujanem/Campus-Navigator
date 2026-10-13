@@ -149,6 +149,20 @@ export const LiveCameraScanner: React.FC<LiveCameraScannerProps> = ({
                             </div>
                         )}
 
+                        {/* AR Direction Arrow HUD */}
+                        {!isScanning && (
+                            <div className="flex flex-col items-center justify-center pointer-events-none animate-bounce">
+                                <div className="w-12 h-12 rounded-full bg-blue-600/80 border-2 border-cyan-300 flex items-center justify-center shadow-[0_0_20px_#06b6d4] text-white">
+                                    <svg className="w-6 h-6 transform -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </div>
+                                <span className="mt-1 text-[10px] font-bold text-cyan-200 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm border border-cyan-500/40">
+                                    AR Path: Forward 18m
+                                </span>
+                            </div>
+                        )}
+
                         <div className="flex justify-between">
                             <div className="w-4 h-4 border-b-2 border-l-2 border-blue-400" />
                             <div className="w-4 h-4 border-b-2 border-r-2 border-blue-400" />
