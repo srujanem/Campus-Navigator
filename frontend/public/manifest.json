@@ -1,6 +1,6 @@
 {
-  "name": "Campus 360 - Smart Navigation",
-  "short_name": "Campus360",
+  "name": "Campus Navigator - Smart Indoor Navigation",
+  "short_name": "CampusNav",
   "description": "Smart indoor campus navigation system for college students and staff",
   "start_url": "/student",
   "display": "standalone",

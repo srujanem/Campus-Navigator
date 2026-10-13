@@ -106,7 +106,7 @@ export const BlueprintStudio: React.FC = () => {
 
                         <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
                             <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                                <p className="text-xs font-semibold text-gray-700">How Campus 360 Converts a Blueprint into Navigation</p>
+                                <p className="text-xs font-semibold text-gray-700">How Campus Navigator Converts a Blueprint into Navigation</p>
                             </div>
                             <div className="divide-y divide-gray-100">
                                 {[

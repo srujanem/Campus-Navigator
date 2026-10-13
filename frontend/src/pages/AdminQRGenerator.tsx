@@ -134,7 +134,7 @@ export const AdminQRGenerator: React.FC = () => {
                     >
                         {/* Institutional Badge */}
                         <div className="w-full pb-2 mb-2 border-b border-gray-100 flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-blue-700 tracking-wider uppercase">Campus 360</span>
+                            <span className="text-[10px] font-bold text-blue-700 tracking-wider uppercase">Campus Navigator</span>
                             <span className="text-[9px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium">
                                 Floor {node.floor}
                             </span>
@@ -155,7 +155,7 @@ export const AdminQRGenerator: React.FC = () => {
 
                         {/* Scan Instruction */}
                         <p className="text-[9px] text-gray-500 mt-3 font-medium">
-                            Point phone camera or open <span className="font-semibold text-gray-800">Campus 360</span> to navigate
+                            Point phone camera or open <span className="font-semibold text-gray-800">Campus Navigator</span> to navigate
                         </p>
                     </div>
                 ))}

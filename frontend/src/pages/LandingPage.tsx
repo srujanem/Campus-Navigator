@@ -30,7 +30,7 @@ export const LandingPage: React.FC = () => {
                     </div>
 
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
-                        Campus 360 — Intelligent Indoor Navigation
+                        Campus Navigator — Intelligent Indoor Navigation
                     </h1>
                     
                     <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed font-normal">
@@ -381,7 +381,7 @@ export const LandingPage: React.FC = () => {
                         Core Architecture
                     </span>
                     <h2 className="text-2xl font-bold text-slate-900 mt-2">
-                        How Campus 360 Maps the Physical World
+                        How Campus Navigator Maps the Physical World
                     </h2>
                 </div>
 
@@ -425,7 +425,7 @@ export const LandingPage: React.FC = () => {
                             <Building2 size={16} />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-slate-900">Campus 360 — Official Navigation Platform</p>
+                            <p className="text-xs font-bold text-slate-900">Campus Navigator — Official Navigation Platform</p>
                             <p className="text-[10px] text-slate-400">Institutional Facilities & Campus Safety System</p>
                         </div>
                     </div>

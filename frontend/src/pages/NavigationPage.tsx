@@ -44,7 +44,7 @@ type LangKey = 'en' | 'hi' | 'te' | 'ta';
 
 const translations: Record<LangKey, Record<string, string>> = {
     en: {
-        title: "Campus 360 Route Navigation",
+        title: "Campus Navigator Route Navigation",
         subtitle: "Zero-hardware indoor positioning across 4 campus buildings. Turn-by-turn guidance and AI vision.",
         fromWhere: "From Where?",
         destination: "Destination",
@@ -293,7 +293,7 @@ export const NavigationPage: React.FC = () => {
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [chatQuery, setChatQuery] = useState('');
     const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'agent', text: string }>>([
-        { role: 'agent', text: 'Hi! I am your Campus 360 AI Assistant. Ask me how to reach any room, lab, library, or canteen!' }
+        { role: 'agent', text: 'Hi! I am your Campus Navigator AI Assistant. Ask me how to reach any room, lab, library, or canteen!' }
     ]);
     const [isChatLoading, setIsChatLoading] = useState(false);
 
@@ -484,7 +484,7 @@ export const NavigationPage: React.FC = () => {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2500);
 
-        const text = encodeURIComponent(`Campus 360 Indoor Route from ${startText} to ${endText}: ${url}`);
+        const text = encodeURIComponent(`Campus Navigator Indoor Route from ${startText} to ${endText}: ${url}`);
         window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     };
 
@@ -1141,7 +1141,7 @@ export const NavigationPage: React.FC = () => {
                         <div className="px-4 py-3 bg-blue-700 text-white flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Sparkles size={16} />
-                                <h4 className="text-xs font-bold">Campus 360 AI Assistant</h4>
+                                <h4 className="text-xs font-bold">Campus Navigator AI Assistant</h4>
                             </div>
                             <button
                                 onClick={() => setIsChatOpen(false)}

@@ -60,7 +60,7 @@ export const AdminDashboard: React.FC = () => {
                         </span>
                     </div>
                     <p className="text-xs text-slate-500">
-                        Campus 360 Spatial Graph v2.4 · Real-time telemetry, hazard avoidance, and infrastructure directory.
+                        Campus Navigator Spatial Graph v2.4 · Real-time telemetry, hazard avoidance, and infrastructure directory.
                     </p>
                 </div>
                 
@@ -269,7 +269,7 @@ export const AdminDashboard: React.FC = () => {
             {/* Subsystem Health Status */}
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
                 <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                    <p className="text-xs font-bold text-slate-900 uppercase tracking-wide">Campus 360 Core Subsystems</p>
+                    <p className="text-xs font-bold text-slate-900 uppercase tracking-wide">Campus Navigator Core Subsystems</p>
                     <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
                         4 of 4 Operational
                     </span>

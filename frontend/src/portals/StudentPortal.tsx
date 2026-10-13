@@ -21,7 +21,7 @@ const StudentSidebar: React.FC = () => {
                     <GraduationCap size={16} className="text-blue-700" />
                     <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Student Portal</span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-0.5 font-medium">Campus 360 Spatial Suite</p>
+                <p className="text-[10px] text-slate-400 mt-0.5 font-medium">Campus Navigator Spatial Suite</p>
             </div>
 
             <nav className="flex-1 p-2.5 space-y-1">
