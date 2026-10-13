@@ -36,38 +36,69 @@ export const LandingPage: React.FC = () => {
                         any building using floor plan maps, voice search, and real-time route planning.
                     </p>
 
-                    {/* Two Portal Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                    {/* Combined Portal Action Hub */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
                         <Link
                             to="/student"
-                            className="bg-white rounded-lg p-5 text-left hover:shadow-md transition-shadow border border-blue-100 group"
+                            className="bg-white rounded-lg p-5 text-left hover:shadow-lg transition-all border border-blue-100 group flex flex-col justify-between"
                         >
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="w-10 h-10 rounded bg-blue-700 flex items-center justify-center">
-                                    <GraduationCap size={20} className="text-white" />
+                            <div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="w-10 h-10 rounded bg-blue-700 flex items-center justify-center text-white">
+                                        <GraduationCap size={20} />
+                                    </div>
+                                    <ArrowRight size={16} className="text-gray-400 group-hover:text-blue-700 group-hover:translate-x-0.5 transition-all" />
                                 </div>
-                                <ArrowRight size={16} className="text-gray-400 group-hover:text-blue-700 group-hover:translate-x-0.5 transition-all" />
+                                <p className="font-bold text-gray-900 mb-1">Student Navigation</p>
+                                <p className="text-xs text-gray-500 leading-relaxed">
+                                    Turn-by-turn routes, camera door scanner, voice navigation, and timetable.
+                                </p>
                             </div>
-                            <p className="font-bold text-gray-900 mb-1">Student Portal</p>
-                            <p className="text-xs text-gray-500 leading-relaxed">
-                                Navigate campus, find rooms, get turn-by-turn directions, use voice search.
-                            </p>
+                            <span className="text-[11px] font-bold text-blue-700 mt-4 inline-flex items-center gap-1">
+                                Launch Portal →
+                            </span>
+                        </Link>
+
+                        <Link
+                            to="/admin/qr"
+                            className="bg-white rounded-lg p-5 text-left hover:shadow-lg transition-all border border-blue-100 group flex flex-col justify-between"
+                        >
+                            <div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="w-10 h-10 rounded bg-indigo-700 flex items-center justify-center text-white">
+                                        <Camera size={20} />
+                                    </div>
+                                    <ArrowRight size={16} className="text-gray-400 group-hover:text-indigo-700 group-hover:translate-x-0.5 transition-all" />
+                                </div>
+                                <p className="font-bold text-gray-900 mb-1">Printable Door QRs</p>
+                                <p className="text-xs text-gray-500 leading-relaxed">
+                                    Generate and print physical door QR tags for Room 309, 310, labs, and washrooms.
+                                </p>
+                            </div>
+                            <span className="text-[11px] font-bold text-indigo-700 mt-4 inline-flex items-center gap-1">
+                                Print QR Cards →
+                            </span>
                         </Link>
 
                         <Link
                             to="/admin"
-                            className="bg-white rounded-lg p-5 text-left hover:shadow-md transition-shadow border border-blue-100 group"
+                            className="bg-white rounded-lg p-5 text-left hover:shadow-lg transition-all border border-blue-100 group flex flex-col justify-between"
                         >
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="w-10 h-10 rounded bg-gray-800 flex items-center justify-center">
-                                    <Settings size={20} className="text-white" />
+                            <div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="w-10 h-10 rounded bg-gray-800 flex items-center justify-center text-white">
+                                        <Settings size={20} />
+                                    </div>
+                                    <ArrowRight size={16} className="text-gray-400 group-hover:text-gray-800 group-hover:translate-x-0.5 transition-all" />
                                 </div>
-                                <ArrowRight size={16} className="text-gray-400 group-hover:text-gray-800 group-hover:translate-x-0.5 transition-all" />
+                                <p className="font-bold text-gray-900 mb-1">Admin Portal</p>
+                                <p className="text-xs text-gray-500 leading-relaxed">
+                                    Manage blueprint, graph setup, and dynamic corridor hazard rerouting.
+                                </p>
                             </div>
-                            <p className="font-bold text-gray-900 mb-1">Admin Portal</p>
-                            <p className="text-xs text-gray-500 leading-relaxed">
-                                Upload floor plans, configure rooms, manage routes and campus structure.
-                            </p>
+                            <span className="text-[11px] font-bold text-gray-900 mt-4 inline-flex items-center gap-1">
+                                Open Dashboard →
+                            </span>
                         </Link>
                     </div>
                 </div>
@@ -77,10 +108,10 @@ export const LandingPage: React.FC = () => {
             <section className="border-b border-gray-100 bg-gray-50">
                 <div className="max-w-4xl mx-auto px-6 py-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                     {[
-                        { value: '0 Floors', label: 'Mapped (Pending)' },
-                        { value: '0 Rooms', label: 'Indexed & Named' },
-                        { value: 'Ready', label: 'AI Route Comparison' },
-                        { value: '4 Languages', label: 'Voice Search Support' },
+                        { value: '4 Floors', label: 'Active Map Levels' },
+                        { value: '51 Nodes', label: 'Indexed Rooms & Corridors' },
+                        { value: '98%+ Accuracy', label: 'Zero-Hardware Camera/QR' },
+                        { value: 'Voice & PWA', label: 'Mobile Offline Enabled' },
                     ].map(s => (
                         <div key={s.label}>
                             <p className="text-lg font-bold text-gray-900">{s.value}</p>
