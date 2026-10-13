@@ -1,0 +1,17 @@
+{
+  "name": "Campus 360 - Smart Navigation",
+  "short_name": "Campus360",
+  "description": "Smart indoor campus navigation system for college students and staff",
+  "start_url": "/student",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

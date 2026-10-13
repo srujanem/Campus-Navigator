@@ -15,6 +15,30 @@ export const calculateRoute = async (startId: string, endId: string, accessibleO
     return res.json();
 };
 
+export const getTimetable = async () => {
+    const res = await fetch(`${API_BASE}/timetable`);
+    return res.json();
+};
+
+export const getMaintenance = async () => {
+    const res = await fetch(`${API_BASE}/maintenance`);
+    return res.json();
+};
+
+export const updateMaintenance = async (blockedEdges: string[][], alert: string = '') => {
+    const res = await fetch(`${API_BASE}/maintenance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocked_edges: blockedEdges, alert })
+    });
+    return res.json();
+};
+
+export const resetMaintenance = async () => {
+    const res = await fetch(`${API_BASE}/maintenance/reset`, { method: 'POST' });
+    return res.json();
+};
+
 export const agentQuery = async (query: string, currentLocation?: string) => {
     const res = await fetch(`${API_BASE}/agent/query`, {
         method: 'POST',

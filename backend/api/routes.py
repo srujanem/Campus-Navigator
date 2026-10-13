@@ -10,11 +10,21 @@ from core.agent import agent
 
 router = APIRouter()
 
+# In-memory maintenance state
+maintenance_state = {
+    "blocked_edges": [],
+    "alert": ""
+}
+
 class RouteRequest(BaseModel):
     start_id: str
     end_id: str
     accessible_only: bool = False
     blocked_edges: Optional[List[List[str]]] = None
+
+class MaintenanceRequest(BaseModel):
+    blocked_edges: List[List[str]]
+    alert: str = ""
 
 class AgentQuery(BaseModel):
     query: str
@@ -32,11 +42,47 @@ def get_graph():
     with open(os.path.join(data_dir, 'graph.json'), 'r') as f:
         return json.load(f)
 
+@router.get("/timetable")
+def get_timetable():
+    data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+    tt_path = os.path.join(data_dir, 'timetable.json')
+    if os.path.exists(tt_path):
+        with open(tt_path, 'r') as f:
+            return json.load(f)
+    return []
+
+@router.get("/maintenance")
+def get_maintenance():
+    return maintenance_state
+
+@router.post("/maintenance")
+def update_maintenance(req: MaintenanceRequest):
+    maintenance_state["blocked_edges"] = req.blocked_edges
+    maintenance_state["alert"] = req.alert
+    return maintenance_state
+
+@router.post("/maintenance/reset")
+def reset_maintenance():
+    maintenance_state["blocked_edges"] = []
+    maintenance_state["alert"] = ""
+    return maintenance_state
+
 @router.post("/navigation/route")
 def calculate_route(req: RouteRequest):
-    res = graph_engine.calculate_route(req.start_id, req.end_id, req.accessible_only, req.blocked_edges)
+    # Merge global maintenance blocked edges if not explicitly provided
+    active_blocked = list(req.blocked_edges or [])
+    for b in maintenance_state["blocked_edges"]:
+        if b not in active_blocked:
+            active_blocked.append(b)
+
+    res = graph_engine.calculate_route(req.start_id, req.end_id, req.accessible_only, active_blocked)
     if "error" in res:
         raise HTTPException(status_code=400, detail=res["error"])
+    
+    # Attach maintenance alert info if relevant
+    if maintenance_state["alert"]:
+        res["maintenance_alert"] = maintenance_state["alert"]
+        
     return res
 
 @router.post("/agent/query")
